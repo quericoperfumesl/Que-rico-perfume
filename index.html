@@ -18,46 +18,40 @@ button,input,select,textarea{font-family:inherit}
 </head>
 <body>
 <div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
+var SB=window.supabase.createClient("https://vxhzyrqcrswxxhsiuuzc.supabase.co","sb_publishable_NaolxGzQ2aBuwm7ST8TkOg_WQTNwfgp");
+function up_(t,r){SB.from(t).upsert(r).then(function(x){if(x.error)console.warn(t,x.error);});}
+function del_(t,i){SB.from(t).delete().eq("id",i).then(function(x){if(x.error)console.warn(t,x.error);});}
+var DB={up:up_,del:del_};
+var cliToDb=function(c){return {id:c.id,nombre:c.name,telefono:c.phone,ciudad:c.city,instagram:c.ig,cumple:c.bday,notas:c.notes};};
+var cliFromDb=function(r){return {id:r.id,name:r.nombre||"",phone:r.telefono||"",city:r.ciudad||"",ig:r.instagram||"",bday:r.cumple||"",notes:r.notas||""};};
+var prodToDb=function(p){return {id:p.id,codigo:p.code,inspirado:p.insp,genero:p.gen,precio:p.price,costo:p.cost,stock:p.stock,tester:p.tester};};
+var prodFromDb=function(r){return {id:r.id,code:r.codigo||"",insp:r.inspirado||"",gen:r.genero||"F",price:r.precio||0,cost:r.costo||0,stock:r.stock||0,tester:r.tester||0};};
+var orderToDb=function(o){return {id:o.id,cliente_id:o.clientId,fecha:o.date,entrega:o.delivery,lineas:o.lines,pagos:o.pays};};
+var orderFromDb=function(r){return {id:r.id,clientId:r.cliente_id,date:r.fecha,delivery:r.entrega||"Pendiente",lines:r.lineas||[],pays:r.pagos||[]};};
+var buyToDb=function(b){return {id:b.id,fecha:b.date,lineas:b.lines,total:b.total};};
+var buyFromDb=function(r){return {id:r.id,date:r.fecha,lines:r.lineas||[],total:r.total||0};};
+var tplToDb=function(t){return {id:t.id,nombre:t.name,cuerpo:t.body};};
+var tplFromDb=function(r){return {id:r.id,name:r.nombre||"",body:r.cuerpo||""};};
+var userToDb=function(u){return {id:u.id,nombre:u.name,rol:u.role};};
+var userFromDb=function(r){return {id:r.id,name:r.nombre||"",role:r.rol||"Ventas"};};
 var C={bordo:"#7A1535",bordoD:"#4E0E23",crema:"#FFEDA8",ink:"#2A2020",mut:"#9A8C7C",line:"#F0E9DC",fl:"#E3DAC9",warm:"#FBF8F0",ok:"#146B41",okB:"#DCF3E4",wa:"#8A5A12",waB:"#FDECC4",bad:"#A3352E",badB:"#FBD9D5",prep:"#463A86",prepB:"#ECE9F5",info:"#17307A",infoB:"#E3EAFB"};
 var M=function(n){return "$ "+new Intl.NumberFormat("es-AR").format(Math.round(n||0));};
-var TODAY="2026-07-31";
+var TODAY=new Date().toISOString().slice(0,10);var MONTH=TODAY.slice(0,7);
 var fD=function(d){return d===TODAY?"hoy":d.slice(8,10)+"/"+d.slice(5,7);};
-var uid=function(){return "x"+Math.random().toString(36).slice(2,7);};
+var uid=function(){if(typeof crypto!=="undefined"&&crypto.randomUUID){return crypto.randomUUID();}return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,function(c){var r=Math.random()*16|0,v=c==="x"?r:(r&0x3|0x8);return v.toString(16);});};
 var num=function(id){return parseInt((document.getElementById(id).value||"").replace(/\D/g,""))||0;};
 var val=function(id){return (document.getElementById(id).value||"").trim();};
 var daysBetween=function(d){return Math.round((new Date(TODAY)-new Date(d))/86400000);};
-var P=[
-{id:"p1",code:"Bella",insp:"La Vie Est Belle",gen:"F",stock:1,tester:1,price:40000,cost:22000},
-{id:"p2",code:"Olymp",insp:"Olympea",gen:"F",stock:3,tester:1,price:40000,cost:22000},
-{id:"p3",code:"2Rose",insp:"212 Vip Rose",gen:"F",stock:0,tester:1,price:40000,cost:22000},
-{id:"p4",code:"Adore",insp:"J'adore",gen:"F",stock:2,tester:0,price:40000,cost:22000},
-{id:"p5",code:"Ggirl",insp:"Good Girl",gen:"F",stock:1,tester:1,price:40000,cost:22000},
-{id:"p6",code:"Scndl W",insp:"Scandal",gen:"F",stock:1,tester:1,price:40000,cost:22000},
-{id:"p7",code:"Sauva",insp:"Sauvage",gen:"M",stock:2,tester:0,price:40000,cost:22000},
-{id:"p8",code:"Eros.V",insp:"Eros Versace",gen:"M",stock:1,tester:1,price:40000,cost:22000}];
-var CL=[
-{id:"c1",name:"Ludmila Aguirre",phone:"5492664111111",city:"San Luis",ig:"@ludmi",bday:"14/03",notes:"Le gustan los dulces."},
-{id:"c2",name:"Matias",phone:"5492664222222",city:"San Luis",ig:"",bday:"",notes:""},
-{id:"c3",name:"Joaquin",phone:"5492664333333",city:"Villa Mercedes",ig:"",bday:"",notes:""},
-{id:"c4",name:"Fabiana",phone:"5492664444444",city:"San Luis",ig:"@fabi",bday:"02/09",notes:""},
-{id:"c5",name:"Celia",phone:"5492664555555",city:"San Luis",ig:"",bday:"",notes:""}];
-var T=[
-{id:"t1",name:"Pedido listo",body:"Hola {{nombre}}! Tu pedido de {{perfumes}} ya esta listo para retirar."},
-{id:"t2",name:"Ya llego",body:"Hola {{nombre}}! Ya llego el perfume que esperabas. Coordinamos la entrega?"},
-{id:"t3",name:"Recordatorio de saldo",body:"Hola {{nombre}}! Te recuerdo que quedo un saldo de {{saldo}}. Cuando puedas lo cerramos, gracias!"},
-{id:"t4",name:"Cumpleanos",body:"Feliz cumple {{nombre}}! Te dejamos 15% off esta semana como regalito."},
-{id:"t5",name:"Reactivacion",body:"Hola {{nombre}}! Hace rato no charlamos. Llegaron perfumes nuevos, te muestro?"}];
-var U=[{id:"u1",name:"Nazarena",role:"Administrador"},{id:"u2",name:"Sofia",role:"Ventas"}];
+var P=[];
+var CL=[];
+var T=[];
+var U=[];
 var ROLES={Administrador:"Ve y maneja todo el sistema",Ventas:"Pedidos, clientes y caja","Deposito":"Stock y productos",Marketing:"Campanas y plantillas"};
 var S={view:"inicio",ov:null,filter:"Todos",gen:"Todos",q:"",pq:"",focusEl:null,cart:[],clientId:"",payMode:"pagado",sena:0,buyCart:[],confirmDel:null,mktab:"camp",mseg:"cumple",mtid:"t4",editTpl:null,editUser:null,
-orders:[
-{id:"o1",clientId:"c1",date:"2026-07-28",lines:[{p:"p1",q:1},{p:"p2",q:2}],delivery:"Listo",pays:[{a:60000,m:"Efectivo",d:"2026-07-28"}]},
-{id:"o2",clientId:"c2",date:"2026-07-27",lines:[{p:"p3",q:1}],delivery:"Pendiente",pays:[{a:40000,m:"Transf.",d:"2026-07-27"}]},
-{id:"o3",clientId:"c3",date:"2026-06-20",lines:[{p:"p8",q:1}],delivery:"Entregado",pays:[{a:40000,m:"Efectivo",d:"2026-06-20"}]},
-{id:"o4",clientId:"c4",date:"2026-07-31",lines:[{p:"p6",q:1},{p:"p1",q:1}],delivery:"Entregado",pays:[{a:80000,m:"MP",d:"2026-07-31"}]}],
-buys:[{id:"b1",date:"2026-07-05",lines:[{p:"p1",q:3,c:22000},{p:"p2",q:5,c:22000},{p:"p6",q:3,c:22000}],total:242000}]};
+orders:[],buys:[]};
 var lastKey=null;
 var prod=function(i){return P.filter(function(p){return p.id===i;})[0];};
 var cli=function(i){return CL.filter(function(c){return c.id===i;})[0];};
@@ -71,7 +65,7 @@ var lv=function(i){var s=st(i).sp;return s>=300000?"Oro":(s>=120000?"Plata":"Bro
 var lastOrderDays=function(i){var os=S.orders.filter(function(o){return o.clientId===i;});if(!os.length)return 999;var m=os.map(function(o){return o.date;}).sort().reverse()[0];return daysBetween(m);};
 var invertido=function(){return S.buys.reduce(function(s,b){return s+b.total;},0);};
 var ventas=function(){return S.orders.reduce(function(s,o){return s+oT(o);},0);};
-var ventasMes=function(){return S.orders.filter(function(o){return o.date.slice(0,7)==="2026-07";}).reduce(function(s,o){return s+oT(o);},0);};
+var ventasMes=function(){return S.orders.filter(function(o){return o.date.slice(0,7)===MONTH;}).reduce(function(s,o){return s+oT(o);},0);};
 var costoVendido=function(){return S.orders.reduce(function(s,o){return s+o.lines.reduce(function(a,l){return a+prod(l.p).cost*l.q;},0);},0);};
 var ganancia=function(){return ventas()-costoVendido();};
 var roi=function(){var inv=invertido();return inv?Math.round(ganancia()/inv*100):0;};
@@ -243,32 +237,50 @@ search:function(v){S.q=v;S.focusEl="cs";render();},psearch:function(v){S.pq=v;S.
 close:function(){S.ov=null;S.confirmDel=null;render();},noDel:function(){S.confirmDel=null;render();},
 oClient:function(i){S.ov={t:"cli",id:i};render();},oOrder:function(i){S.ov={t:"ped",id:i};S.confirmDel=null;render();},
 editClient:function(i){S.ov={t:"fc",id:i||null};render();},editProd:function(i){S.ov={t:"fp",id:i||null};render();},
-saveClient:function(i){var n=val("f_name");if(!n)return;var d={name:n,phone:val("f_phone"),city:val("f_city"),ig:val("f_ig"),bday:val("f_bday"),notes:val("f_notes")};if(i){var c=cli(i);for(var k in d)c[k]=d[k];S.ov={t:"cli",id:i};}else{CL.push({id:uid(),name:d.name,phone:d.phone,city:d.city,ig:d.ig,bday:d.bday,notes:d.notes});S.ov=null;S.view="clientes";}render();},
-saveProd:function(i){var code=val("f_code");if(!code)return;var d={code:code,insp:val("f_insp"),price:num("f_price"),cost:num("f_cost"),stock:num("f_stock"),tester:num("f_tester")};if(i){var p=prod(i);for(var k in d)p[k]=d[k];}else{P.push({id:uid(),gen:"F",code:d.code,insp:d.insp,price:d.price,cost:d.cost,stock:d.stock,tester:d.tester});}S.ov=null;S.view="productos";render();},
+saveClient:function(i){var n=val("f_name");if(!n)return;var d={name:n,phone:val("f_phone"),city:val("f_city"),ig:val("f_ig"),bday:val("f_bday"),notes:val("f_notes")};if(i){var c=cli(i);for(var k in d)c[k]=d[k];DB.up("clientes",cliToDb(c));S.ov={t:"cli",id:i};}else{var nc={id:uid(),name:d.name,phone:d.phone,city:d.city,ig:d.ig,bday:d.bday,notes:d.notes};CL.push(nc);DB.up("clientes",cliToDb(nc));S.ov=null;S.view="clientes";}render();},
+saveProd:function(i){var code=val("f_code");if(!code)return;var d={code:code,insp:val("f_insp"),price:num("f_price"),cost:num("f_cost"),stock:num("f_stock"),tester:num("f_tester")};if(i){var p=prod(i);for(var k in d)p[k]=d[k];DB.up("productos",prodToDb(p));}else{var np={id:uid(),gen:"F",code:d.code,insp:d.insp,price:d.price,cost:d.cost,stock:d.stock,tester:d.tester};P.push(np);DB.up("productos",prodToDb(np));}S.ov=null;S.view="productos";render();},
 newOrder:function(i){S.ov={t:"nuevo"};S.cart=[];S.clientId=i||"";S.payMode="pagado";S.sena=0;render();},
 cl:function(v){S.clientId=v;render();},add:function(i){if(!S.cart.filter(function(l){return l.p===i;})[0])S.cart.push({p:i,q:1});render();},
 qty:function(i,d){var l=S.cart.filter(function(x){return x.p===i;})[0];l.q=Math.max(1,l.q+d);render();},
 setP:function(m){S.payMode=m;if(m==="sena"&&!S.sena){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);S.sena=Math.round(t/2/10000)*10000;}render();},
 sena:function(d){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);S.sena=Math.max(0,Math.min(t,S.sena+d));render();},
-save:function(){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);var pay=[];if(S.payMode==="pagado")pay=[{a:t,m:"Efectivo",d:TODAY}];else if(S.payMode==="sena"&&S.sena>0)pay=[{a:Math.min(t,S.sena),m:"Efectivo",d:TODAY}];S.orders.unshift({id:uid(),clientId:S.clientId,date:TODAY,lines:S.cart.map(function(l){return{p:l.p,q:l.q};}),delivery:"Pendiente",pays:pay});S.cart.forEach(function(l){var p=prod(l.p);p.stock=Math.max(0,p.stock-l.q);});S.ov=null;S.view="pedidos";render();},
-pay:function(i,a){var o=S.orders.filter(function(x){return x.id===i;})[0];o.pays.push({a:a,m:"Efectivo",d:TODAY});render();},
-adv:function(i){var fl=["Pendiente","Esperando stock","Confirmado","Preparando","Listo","Enviado","Entregado"];var o=S.orders.filter(function(x){return x.id===i;})[0];o.delivery=fl[Math.min(fl.length-1,fl.indexOf(o.delivery)+1)];render();},
+save:function(){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);var pay=[];if(S.payMode==="pagado")pay=[{a:t,m:"Efectivo",d:TODAY}];else if(S.payMode==="sena"&&S.sena>0)pay=[{a:Math.min(t,S.sena),m:"Efectivo",d:TODAY}];var no={id:uid(),clientId:S.clientId,date:TODAY,lines:S.cart.map(function(l){return{p:l.p,q:l.q};}),delivery:"Pendiente",pays:pay};S.orders.unshift(no);DB.up("pedidos",orderToDb(no));S.cart.forEach(function(l){var p=prod(l.p);p.stock=Math.max(0,p.stock-l.q);DB.up("productos",prodToDb(p));});S.ov=null;S.view="pedidos";render();},
+pay:function(i,a){var o=S.orders.filter(function(x){return x.id===i;})[0];o.pays.push({a:a,m:"Efectivo",d:TODAY});DB.up("pedidos",orderToDb(o));render();},
+adv:function(i){var fl=["Pendiente","Esperando stock","Confirmado","Preparando","Listo","Enviado","Entregado"];var o=S.orders.filter(function(x){return x.id===i;})[0];o.delivery=fl[Math.min(fl.length-1,fl.indexOf(o.delivery)+1)];DB.up("pedidos",orderToDb(o));render();},
 askDel:function(i){S.confirmDel=i;render();},
-del:function(i){var o=S.orders.filter(function(x){return x.id===i;})[0];if(o)o.lines.forEach(function(l){var p=prod(l.p);if(p)p.stock+=l.q;});S.orders=S.orders.filter(function(x){return x.id!==i;});S.ov=null;S.confirmDel=null;S.view="pedidos";render();},
+del:function(i){var o=S.orders.filter(function(x){return x.id===i;})[0];if(o)o.lines.forEach(function(l){var p=prod(l.p);if(p){p.stock+=l.q;DB.up("productos",prodToDb(p));}});DB.del("pedidos",i);S.orders=S.orders.filter(function(x){return x.id!==i;});S.ov=null;S.confirmDel=null;S.view="pedidos";render();},
 newBuy:function(){S.ov={t:"buy"};S.buyCart=[];render();},
 badd:function(i){if(!S.buyCart.filter(function(l){return l.p===i;})[0])S.buyCart.push({p:i,q:1});render();},
 bqty:function(i,d){var l=S.buyCart.filter(function(x){return x.p===i;})[0];l.q=Math.max(1,l.q+d);render();},
-saveBuy:function(){var t=S.buyCart.reduce(function(s,l){return s+prod(l.p).cost*l.q;},0);S.buys.unshift({id:uid(),date:TODAY,lines:S.buyCart.map(function(l){return{p:l.p,q:l.q,c:prod(l.p).cost};}),total:t});S.buyCart.forEach(function(l){prod(l.p).stock+=l.q;});S.ov=null;S.view="caja";render();},
+saveBuy:function(){var t=S.buyCart.reduce(function(s,l){return s+prod(l.p).cost*l.q;},0);var nb={id:uid(),date:TODAY,lines:S.buyCart.map(function(l){return{p:l.p,q:l.q,c:prod(l.p).cost};}),total:t};S.buys.unshift(nb);DB.up("compras",buyToDb(nb));S.buyCart.forEach(function(l){var p=prod(l.p);p.stock+=l.q;DB.up("productos",prodToDb(p));});S.ov=null;S.view="caja";render();},
 mktab:function(t){S.mktab=t;S.editTpl=null;render();},mseg:function(s){S.mseg=s;render();},mtpl:function(t){S.mtid=t;render();},
 wsend:function(ph,msg){window.open("https://wa.me/"+ph+"?text="+msg,"_blank");},
-tedit:function(id){S.editTpl=id;render();},tnew:function(){var id="t"+Date.now();T.push({id:id,name:"Nueva plantilla",body:"Hola {{nombre}}! "});S.editTpl=id;render();},tcancel:function(){S.editTpl=null;render();},
-tsave:function(id){var t=T.filter(function(x){return x.id===id;})[0];t.name=document.getElementById("tplname").value||t.name;t.body=document.getElementById("tpltext").value;S.editTpl=null;render();},
+tedit:function(id){S.editTpl=id;render();},tnew:function(){var id=uid();T.push({id:id,name:"Nueva plantilla",body:"Hola {{nombre}}! "});S.editTpl=id;render();},tcancel:function(){S.editTpl=null;render();},
+tsave:function(id){var t=T.filter(function(x){return x.id===id;})[0];t.name=document.getElementById("tplname").value||t.name;t.body=document.getElementById("tpltext").value;DB.up("plantillas",tplToDb(t));S.editTpl=null;render();},
 insVar:function(v){var ta=document.getElementById("tpltext");if(!ta)return;var s=ta.selectionStart||ta.value.length;ta.value=ta.value.slice(0,s)+v+ta.value.slice(ta.selectionEnd||s);ta.focus();ta.selectionStart=ta.selectionEnd=s+v.length;},
-uedit:function(id){S.editUser=id;render();},unew:function(){var id="u"+Date.now();U.push({id:id,name:"Nuevo usuario",role:"Ventas"});S.editUser=id;render();},ucancel:function(){S.editUser=null;render();},
-usave:function(id){var u=U.filter(function(x){return x.id===id;})[0];u.name=document.getElementById("uname").value||u.name;u.role=document.getElementById("urole").value;S.editUser=null;render();},
+uedit:function(id){S.editUser=id;render();},unew:function(){var id=uid();U.push({id:id,name:"Nuevo usuario",role:"Ventas"});S.editUser=id;render();},ucancel:function(){S.editUser=null;render();},
+usave:function(id){var u=U.filter(function(x){return x.id===id;})[0];u.name=document.getElementById("uname").value||u.name;u.role=document.getElementById("urole").value;DB.up("usuarios",userToDb(u));S.editUser=null;render();},
 wa:function(ph,kind,ex){var d=JSON.parse(decodeURIComponent(ex));var t={listo:"Hola "+d.name+"! Tu pedido de "+d.prod+" ya esta listo. Avisame cualquier cosa.",saldo:"Hola "+d.name+"! Te recuerdo que quedo un saldo de "+d.saldo+". Cuando puedas lo cerramos!",gracias:"Hola "+d.name+"! Gracias por tu compra."};window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t[kind]||t.gracias),"_blank");}
 };
+function seedDefaults(w){
+if(w==="tpl"){var dt=[["Pedido listo","Hola {{nombre}}! Tu pedido de {{perfumes}} ya esta listo para retirar."],["Ya llego","Hola {{nombre}}! Ya llego el perfume que esperabas. Coordinamos la entrega?"],["Recordatorio de saldo","Hola {{nombre}}! Te recuerdo que quedo un saldo de {{saldo}}. Cuando puedas lo cerramos, gracias!"],["Cumpleanos","Feliz cumple {{nombre}}! Te dejamos 15% off esta semana como regalito."],["Reactivacion","Hola {{nombre}}! Hace rato no charlamos. Llegaron perfumes nuevos, te muestro?"]];dt.forEach(function(x){var o={id:uid(),name:x[0],body:x[1]};T.push(o);DB.up("plantillas",tplToDb(o));});}
+if(w==="user"){var du=[["Nazarena","Administrador"],["Sofia","Ventas"]];du.forEach(function(x){var o={id:uid(),name:x[0],role:x[1]};U.push(o);DB.up("usuarios",userToDb(o));});}
+}
+function boot(){
+document.getElementById("app").innerHTML='<div style="padding:40px 20px;text-align:center;color:#9A8C7C;font-size:14px">Cargando tu sistema...</div>';
+Promise.all([SB.from("productos").select("*"),SB.from("clientes").select("*"),SB.from("pedidos").select("*"),SB.from("compras").select("*"),SB.from("plantillas").select("*"),SB.from("usuarios").select("*")]).then(function(res){
+(res[0].data||[]).forEach(function(r){P.push(prodFromDb(r));});
+(res[1].data||[]).forEach(function(r){CL.push(cliFromDb(r));});
+(res[2].data||[]).forEach(function(r){S.orders.push(orderFromDb(r));});
+(res[3].data||[]).forEach(function(r){S.buys.push(buyFromDb(r));});
+if(res[4].data&&res[4].data.length){res[4].data.forEach(function(r){T.push(tplFromDb(r));});}else{seedDefaults("tpl");}
+if(res[5].data&&res[5].data.length){res[5].data.forEach(function(r){U.push(userFromDb(r));});}else{seedDefaults("user");}
+S.orders.sort(function(a,b){return a.date<b.date?1:-1;});
+S.mtid=T[0]?T[0].id:"";
 render();
+}).catch(function(e){console.error(e);document.getElementById("app").innerHTML='<div style="padding:40px 20px;text-align:center;color:#A3352E;font-size:14px">No se pudo conectar con la base de datos. Revisa tu conexion y recarga.</div>';});
+}
+boot();
 })();
 </script>
 </body>
