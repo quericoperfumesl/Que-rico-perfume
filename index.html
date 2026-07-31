@@ -1,315 +1,274 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-<meta name="theme-color" content="#7A1535" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#7A1535"/>
 <title>Que Rico Perfume</title>
 <style>
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; background: #EDE7DC; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: #2A2020; }
-  button { font-family: inherit; }
-  #app { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #fff; position: relative; padding-bottom: 66px; }
-  ::-webkit-scrollbar { width: 0; }
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:#EDE7DC;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#2A2020}
+#app{max-width:480px;margin:0 auto;min-height:100vh;background:#FBF6EF;position:relative;padding-bottom:70px}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:0}
+.bar{position:sticky;top:0;z-index:6}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px}
+.sheet{position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#FBF6EF;z-index:20;overflow:auto}
 </style>
 </head>
 <body>
 <div id="app"></div>
 <script>
-(function () {
-  var C = { bordo:"#7A1535", bordoD:"#5E1029", crema:"#FFEDA8", cremaSoft:"#FBEFCF", ink:"#2A2020", muted:"#9A8C7C",
-    line:"#F0E9DC", fl:"#E3DAC9", warm:"#FBF8F0", ok:"#226B44", okBg:"#DEF0E2", warn:"#8A5A12", warnBg:"#FDECC4",
-    bad:"#A3352E", badBg:"#FBD9D5", prep:"#4A3F7A", prepBg:"#ECE9F5", info:"#17307A", infoBg:"#E3EAFB" };
-
-  var money = function (n) { return "$ " + new Intl.NumberFormat("es-AR").format(Math.round(n || 0)); };
-  var todayISO = function () { return new Date().toISOString().slice(0, 10); };
-  var fmtDate = function (iso) {
-    if (iso === todayISO()) return "hoy";
-    try { return new Date(iso + "T00:00:00").toLocaleDateString("es-AR", { day: "2-digit", month: "short" }); }
-    catch (e) { return iso; }
-  };
-
-  var PRICE = 40000;
-  var P = [
-    { id:"p1", code:"Bella", insp:"La Vie Est Belle", gen:"F", stock:1 },
-    { id:"p2", code:"Olymp", insp:"Olympea", gen:"F", stock:3 },
-    { id:"p3", code:"2Rose", insp:"212 Vip Rose", gen:"F", stock:0 },
-    { id:"p4", code:"Adore", insp:"J'adore", gen:"F", stock:2 },
-    { id:"p5", code:"Ggirl", insp:"Good Girl", gen:"F", stock:1 },
-    { id:"p6", code:"Scndl Woman", insp:"Scandal", gen:"F", stock:1 },
-    { id:"p7", code:"Lexces", insp:"Black L'Exces", gen:"F", stock:1 },
-    { id:"p8", code:"Sauva", insp:"Sauvage", gen:"M", stock:2 },
-    { id:"p9", code:"Eros.V", insp:"Eros de Versace", gen:"M", stock:1 },
-    { id:"p10", code:"Invict", insp:"Invictus", gen:"M", stock:2 },
-    { id:"p11", code:"Scndl Men", insp:"Scandal H", gen:"M", stock:0 },
-    { id:"p12", code:"Creed", insp:"Aventus", gen:"M", stock:0 }
-  ].map(function (p) { p.price = PRICE; return p; });
-
-  var CL = [
-    { id:"c1", name:"Ludmila Aguirre", phone:"5492664111111", city:"San Luis", since:"jun 2026" },
-    { id:"c2", name:"Matías", phone:"5492664222222", city:"San Luis", since:"jul 2026" },
-    { id:"c3", name:"Joaquín", phone:"5492664333333", city:"Villa Mercedes", since:"jul 2026" },
-    { id:"c4", name:"Fabiana", phone:"5492664444444", city:"San Luis", since:"jun 2026" },
-    { id:"c5", name:"Celia", phone:"5492664555555", city:"San Luis", since:"jun 2026" }
-  ];
-
-  var S = {
-    view:"inicio", overlay:null, filter:"Todos", gen:"Todos", q:"",
-    cart:[], clientId:"", payMode:"pagado", sena:0, method:"Efectivo", payMethod:"Efectivo",
-    orders:[
-      { id:"o1", clientId:"c1", date:"2026-07-28", lines:[{p:"p1",q:1},{p:"p2",q:2}], delivery:"Listo", payments:[{a:60000,m:"Efectivo",d:"2026-07-28"}] },
-      { id:"o2", clientId:"c2", date:"2026-07-27", lines:[{p:"p3",q:1}], delivery:"Pendiente", payments:[{a:40000,m:"Transferencia",d:"2026-07-27"}] },
-      { id:"o3", clientId:"c3", date:"2026-07-08", lines:[{p:"p9",q:1},{p:"p6",q:1}], delivery:"Esperando stock", payments:[] },
-      { id:"o4", clientId:"c4", date:"2026-07-31", lines:[{p:"p7",q:1},{p:"p1",q:1}], delivery:"Entregado", payments:[{a:80000,m:"Mercado Pago",d:"2026-07-31"}] }
-    ]
-  };
-
-  var prod = function (id) { return P.filter(function (p) { return p.id === id; })[0]; };
-  var cli = function (id) { return CL.filter(function (c) { return c.id === id; })[0]; };
-  var oTotal = function (o) { return o.lines.reduce(function (s, l) { return s + prod(l.p).price * l.q; }, 0); };
-  var oPaid = function (o) { return o.payments.reduce(function (s, x) { return s + x.a; }, 0); };
-  var oBal = function (o) { return Math.max(0, oTotal(o) - oPaid(o)); };
-  var oPay = function (o) { var b = oBal(o); return b === 0 ? "Pagado" : (oPaid(o) > 0 ? "Fiado" : "Pendiente"); };
-  var summ = function (o) { return o.lines.map(function (l) { return prod(l.p).code; }).join(", "); };
-  var stats = function (id) {
-    var os = S.orders.filter(function (o) { return o.clientId === id; });
-    var spent = os.reduce(function (s, o) { return s + oPaid(o); }, 0);
-    var debt = os.reduce(function (s, o) { return s + oBal(o); }, 0);
-    var total = os.reduce(function (s, o) { return s + oTotal(o); }, 0);
-    return { spent:spent, debt:debt, count:os.length, avg: os.length ? total / os.length : 0, orders:os };
-  };
-  var level = function (id) { var s = stats(id).spent; return s >= 300000 ? "Oro" : (s >= 120000 ? "Plata" : "Bronce"); };
-
-  var pc = { Pendiente:[C.warnBg,C.warn], "Esperando stock":[C.prepBg,C.prep], Confirmado:[C.infoBg,C.info],
-    Preparando:[C.prepBg,C.prep], Listo:["#FBE0E7",C.bordo], Enviado:[C.infoBg,C.info], Entregado:[C.okBg,C.ok],
-    Pagado:[C.okBg,C.ok], Fiado:[C.warnBg,C.warn] };
-  var pill = function (l) { var c = pc[l] || [C.warm,C.muted]; return '<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+c[0]+';color:'+c[1]+'">'+l+'</span>'; };
-  var ini = function (name) { return name.split(" ").map(function (w) { return w[0]; }).slice(0,2).join("").toUpperCase(); };
-
-  var waText = function (kind, d) {
-    var t = {
-      listo:"Hola "+d.name+"! Tu pedido de "+d.prod+" ya está listo para retirar. Cualquier cosa avisame.",
-      llego:"Hola "+d.name+"! Ya llegó el perfume que estabas esperando. Coordinamos la entrega?",
-      gracias:"Hola "+d.name+"! Gracias por tu compra. Esperamos que lo disfrutes.",
-      saldo:"Hola "+d.name+"! Te recuerdo que quedó un saldo pendiente de "+d.saldo+" de tu pedido. Cuando puedas lo cerramos. Gracias!"
-    };
-    return t[kind] || t.gracias;
-  };
-  window.QRwa = function (phone, kind, extra) {
-    var d = JSON.parse(decodeURIComponent(extra));
-    window.open("https://wa.me/" + phone + "?text=" + encodeURIComponent(waText(kind, d)), "_blank");
-  };
-
-  var bar = function (title, back) {
-    return '<div style="background:'+C.bordo+';color:'+C.crema+';padding:14px 16px;display:flex;align-items:center;gap:10px;font-size:15px;position:sticky;top:0;z-index:5">' +
-      (back ? '<span onclick="QR.close()" style="cursor:pointer;font-size:22px;line-height:1;width:20px">'+(back==="x"?"&times;":"&#8592;")+'</span>' : "") +
-      '<span style="flex:1">'+title+'</span></div>';
-  };
-  var metric = function (l, v, hl) {
-    return '<div style="background:'+(hl?C.badBg:C.warm)+';border-radius:11px;padding:12px 13px"><p style="font-size:11.5px;color:'+C.muted+';margin:0 0 3px">'+l+'</p><p style="font-size:19px;font-weight:600;color:'+(hl?C.bad:C.ink)+';margin:0">'+v+'</p></div>';
-  };
-  var chipBtn = function (label, on, action) {
-    return '<button onclick="'+action+'" style="font-size:12.5px;padding:6px 13px;border-radius:20px;cursor:pointer;border:.5px solid '+(on?C.bordo:C.fl)+';background:'+(on?C.bordo:"#fff")+';color:'+(on?C.crema:"#6A5C4C")+'">'+label+'</button>';
-  };
-  var pBtn = function (label, full) {
-    return 'background:'+C.bordo+';color:'+C.crema+';border:none;padding:12px;border-radius:12px;font-size:14.5px;cursor:pointer'+(full?';width:100%':'');
-  };
-
-  // ---------- Vistas ----------
-  function inicio() {
-    var hoy=0, mes=0, fiados=0, pend=0, t=todayISO(), mo=t.slice(0,7);
-    S.orders.forEach(function (o) {
-      o.payments.forEach(function (x) { if (x.d===t) hoy+=x.a; if (x.d.slice(0,7)===mo) mes+=x.a; });
-      fiados += oBal(o); if (o.delivery!=="Entregado") pend++;
-    });
-    var pl = S.orders.filter(function (o){return o.delivery!=="Entregado";}).slice(0,4).map(function (o) {
-      return row(cli(o.clientId).name, summ(o), pill(o.delivery), "QR.openOrder('"+o.id+"')");
-    }).join("");
-    var low = P.filter(function (p){return p.stock<=1;}).slice(0,4).map(function (p) {
-      return row(p.code, "tipo "+p.insp, '<span style="font-size:12px;color:'+(p.stock===0?C.bad:C.warn)+'">'+(p.stock===0?"sin stock":"queda "+p.stock)+'</span>', null);
-    }).join("");
-    return bar('<span style="font-family:Georgia,\'Times New Roman\',serif;font-size:19px">¡Que rico!</span>') +
-      '<div style="padding:14px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
-      metric("Ventas de hoy",money(hoy)) + metric("Este mes",money(mes)) +
-      metric("Fiados por cobrar",money(fiados),fiados>0) + metric("Pedidos pendientes",pend) + '</div>' +
-      '<div style="display:flex;gap:8px;margin:12px 0 4px"><button onclick="QR.newOrder()" style="'+pBtn("",1)+'">+ Nuevo pedido</button>' +
-      '<button onclick="QR.go(\'caja\')" style="flex:1;background:#fff;color:'+C.bordo+';border:.5px solid '+C.bordo+';padding:12px;border-radius:12px;font-size:14px;cursor:pointer">Ver caja</button></div>' +
-      sec("Pedidos pendientes") + pl + sec("Stock bajo") + low + '</div>';
-  }
-
-  function pedidos() {
-    var fs = ["Todos","Pendientes","Fiados","Listos"];
-    var shown = S.orders.filter(function (o) {
-      if (S.filter==="Pendientes") return o.delivery!=="Entregado";
-      if (S.filter==="Fiados") return oBal(o)>0;
-      if (S.filter==="Listos") return o.delivery==="Listo";
-      return true;
-    });
-    var chips = fs.map(function (f) { return chipBtn(f, S.filter===f, "QR.setFilter('"+f+"')"); }).join("");
-    var list = shown.map(function (o) {
-      return '<div onclick="QR.openOrder(\''+o.id+'\')" style="border-bottom:.5px solid '+C.line+';padding:12px 0;cursor:pointer">' +
-        '<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14.5px;color:'+C.ink+'">'+cli(o.clientId).name+'</span><span style="font-size:14.5px;font-weight:600;color:'+C.ink+'">'+money(oTotal(o))+'</span></div>' +
-        '<div style="font-size:12px;color:'+C.muted+';margin:3px 0 7px">'+summ(o)+'</div>' +
-        '<div style="display:flex;gap:6px;align-items:center">'+pill(o.delivery)+pill(oPay(o))+'<span style="font-size:11px;color:#B0A290;margin-left:auto">'+fmtDate(o.date)+'</span></div></div>';
-    }).join("");
-    return bar("Pedidos") + '<div style="padding:12px 14px"><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:6px">'+chips+'</div>'+list+
-      '<button onclick="QR.newOrder()" style="'+pBtn("",1)+';margin-top:16px">+ Nuevo pedido</button></div>';
-  }
-
-  function clientes() {
-    var shown = CL.filter(function (c) { return c.name.toLowerCase().indexOf(S.q.toLowerCase())>=0; });
-    var list = shown.map(function (c) {
-      var st = stats(c.id);
-      return '<div onclick="QR.openClient(\''+c.id+'\')" style="display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:.5px solid '+C.line+';cursor:pointer">' +
-        avatar(c.name) + '<div style="flex:1"><div style="font-size:14px;color:'+C.ink+'">'+c.name+' <span style="font-size:11px;color:'+C.warn+';background:'+C.warnBg+';padding:1px 8px;border-radius:20px">'+level(c.id)+'</span></div><div style="font-size:11.5px;color:'+C.muted+'">'+c.city+' · '+st.count+' compras</div></div>' +
-        (st.debt>0 ? '<span style="font-size:12.5px;color:'+C.bad+'">'+money(st.debt)+'</span>' : "") + '</div>';
-    }).join("");
-    return bar("Clientes") + '<div style="padding:12px 14px">' +
-      '<input oninput="QR.search(this.value)" value="'+S.q+'" placeholder="Buscar cliente…" style="width:100%;border:.5px solid '+C.fl+';border-radius:10px;padding:10px 12px;font-size:14px;outline:none;margin-bottom:6px" />' +
-      list + '</div>';
-  }
-
-  function productos() {
-    var fs = [["Todos","Todos"],["F","Mujer"],["M","Hombre"]];
-    var shown = P.filter(function (p) { return S.gen==="Todos" || p.gen===S.gen; });
-    var chips = fs.map(function (f) { return chipBtn(f[1], S.gen===f[0], "QR.setGen('"+f[0]+"')"); }).join("");
-    var list = shown.map(function (p) {
-      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13.5px;color:'+C.ink+'">'+p.code+'</div><div style="font-size:11.5px;color:'+C.muted+'">tipo '+p.insp+' · '+(p.gen==="F"?"Mujer":"Hombre")+'</div></div><div style="text-align:right"><div style="font-size:13px;color:'+C.ink+'">'+money(p.price)+'</div><div style="font-size:11.5px;color:'+(p.stock===0?C.bad:C.muted)+'">'+(p.stock===0?"sin stock":p.stock+" en stock")+'</div></div></div>';
-    }).join("");
-    return bar("Productos") + '<div style="padding:12px 14px"><div style="display:flex;gap:7px;margin-bottom:6px">'+chips+'</div>'+list+'</div>';
-  }
-
-  function caja() {
-    var pays = [];
-    S.orders.forEach(function (o) { o.payments.forEach(function (x) { pays.push({ a:x.a, m:x.m, d:x.d, name:cli(o.clientId).name }); }); });
-    pays.sort(function (a,b) { return a.d<b.d?1:-1; });
-    var t=todayISO(), mo=t.slice(0,7);
-    var hoy=pays.filter(function(p){return p.d===t;}).reduce(function(s,p){return s+p.a;},0);
-    var mes=pays.filter(function(p){return p.d.slice(0,7)===mo;}).reduce(function(s,p){return s+p.a;},0);
-    var list = pays.map(function (p) {
-      return row(p.name, p.m+" · "+fmtDate(p.d), '<span style="font-size:14px;color:'+C.ok+';font-weight:600">+'+money(p.a)+'</span>', null);
-    }).join("");
-    return bar("Caja") + '<div style="padding:14px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+metric("Ingresos hoy",money(hoy))+metric("Ingresos del mes",money(mes))+'</div>'+sec("Movimientos")+list+'</div>';
-  }
-
-  // ---------- Overlays ----------
-  function fichaCliente(id) {
-    var c = cli(id), st = stats(id);
-    var last = st.orders[0] ? summ(st.orders[0]) : "un perfume";
-    var waData = encodeURIComponent(JSON.stringify({ name:c.name.split(" ")[0], saldo:money(st.debt), prod:last }));
-    var kind = st.debt>0 ? "saldo" : "gracias";
-    var hist = st.orders.map(function (o) {
-      return '<div onclick="QR.openOrder(\''+o.id+'\')" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid '+C.line+';cursor:pointer"><div style="flex:1"><div style="font-size:13.5px;color:'+C.ink+'">'+summ(o)+'</div><div style="font-size:11.5px;color:'+C.muted+'">'+fmtDate(o.date)+'</div></div><div style="text-align:right"><div style="font-size:13px;color:'+C.ink+'">'+money(oTotal(o))+'</div>'+pill(oPay(o))+'</div></div>';
-    }).join("");
-    return sheet(bar("Cliente","back") + '<div style="padding:16px">' +
-      '<div style="display:flex;align-items:center;gap:12px">'+avatar(c.name,1)+'<div><div style="font-size:17px;color:'+C.ink+'">'+c.name+' <span style="font-size:11px;color:'+C.warn+';background:'+C.warnBg+';padding:1px 9px;border-radius:20px">'+level(id)+'</span></div><div style="font-size:12.5px;color:'+C.muted+';margin-top:2px">'+c.city+' · desde '+c.since+'</div></div></div>' +
-      '<button onclick="QRwa(\''+c.phone+'\',\''+kind+'\',\''+waData+'\')" style="'+pBtn("",1)+';margin:16px 0;display:flex;align-items:center;justify-content:center;gap:8px">'+waSvg()+' Enviar WhatsApp</button>' +
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+metric("Gastó en total",money(st.spent))+metric("Compras",st.count)+metric("Ticket promedio",money(st.avg))+metric("Te debe",money(st.debt),st.debt>0)+'</div>' +
-      sec("Historial de compras")+hist +
-      '<button onclick="QR.newOrder(\''+id+'\')" style="width:100%;border:.5px solid '+C.bordo+';color:'+C.bordo+';background:#fff;font-size:14px;padding:11px;border-radius:12px;margin-top:16px;cursor:pointer">+ Nuevo pedido para '+c.name.split(" ")[0]+'</button></div>');
-  }
-
-  function fichaPedido(id) {
-    var o = S.orders.filter(function (x){return x.id===id;})[0];
-    var c = cli(o.clientId), total=oTotal(o), paid=oPaid(o), bal=oBal(o);
-    var waData = encodeURIComponent(JSON.stringify({ name:c.name.split(" ")[0], prod:summ(o), saldo:money(bal) }));
-    var lines = o.lines.map(function (l) { var p=prod(l.p); return row(p.code, "tipo "+p.insp+" · x"+l.q, '<span style="font-size:13px;color:'+C.ink+'">'+money(p.price*l.q)+'</span>', null); }).join("");
-    var payBox = bal>0 ? '<div style="background:'+C.warm+';border-radius:12px;padding:12px;margin-top:14px"><div style="font-size:12px;color:'+C.muted+';margin-bottom:8px">Registrar pago del saldo</div><div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">' +
-      ["Efectivo","Transferencia","Mercado Pago"].map(function (m) { return chipBtn(m, S.payMethod===m, "QR.setPayMethod('"+m+"')"); }).join("") +
-      '</div><button onclick="QR.pay(\''+id+'\','+bal+')" style="'+pBtn("",1)+';padding:11px">Cobrar '+money(bal)+'</button></div>' : "";
-    return sheet(bar("Pedido de "+c.name,"back") + '<div style="padding:16px">' +
-      '<div style="display:flex;gap:8px;margin-bottom:12px">'+pill(o.delivery)+pill(oPay(o))+'</div>'+lines +
-      '<div style="display:flex;justify-content:space-between;margin:12px 0 4px"><span style="font-size:13px;color:'+C.muted+'">Total</span><span style="font-size:18px;font-weight:600;color:'+C.bordo+'">'+money(total)+'</span></div>' +
-      '<div style="display:flex;justify-content:space-between;font-size:13px;color:'+C.muted+'"><span>Pagado</span><span>'+money(paid)+'</span></div>' +
-      (bal>0 ? '<div style="display:flex;justify-content:space-between;font-size:13.5px;color:'+C.bad+';font-weight:600;margin-top:2px"><span>Saldo</span><span>'+money(bal)+'</span></div>' : "") + payBox +
-      '<div style="display:flex;gap:8px;margin-top:14px">' +
-      (o.delivery!=="Entregado" ? '<button onclick="QR.advance(\''+id+'\')" style="flex:1;border:.5px solid '+C.bordo+';color:'+C.bordo+';background:#fff;padding:11px;border-radius:12px;font-size:13.5px;cursor:pointer">Avanzar estado &#8594;</button>' : "") +
-      '<button onclick="QRwa(\''+c.phone+'\',\'listo\',\''+waData+'\')" style="flex:1;'+pBtn("")+';padding:11px;display:flex;align-items:center;justify-content:center;gap:6px">'+waSvg()+' WhatsApp</button></div></div>');
-  }
-
-  function nuevoPedido() {
-    var total = S.cart.reduce(function (s, l) { return s + prod(l.p).price * l.q; }, 0);
-    var opts = '<option value="">Elegí un cliente…</option>' + CL.map(function (c) { return '<option value="'+c.id+'"'+(S.clientId===c.id?" selected":"")+'>'+c.name+' · '+c.city+'</option>'; }).join("");
-    var grid = P.map(function (p) {
-      return '<button onclick="QR.add(\''+p.id+'\')" style="text-align:left;border:.5px solid '+C.fl+';background:'+C.warm+';border-radius:10px;padding:9px 10px;cursor:pointer"><div style="font-size:12.5px;color:'+C.ink+'">'+p.code+'</div><div style="font-size:10.5px;color:'+C.muted+'">'+(p.stock===0?"se pide":p.stock+" en stock")+'</div></button>';
-    }).join("");
-    var cart = S.cart.map(function (l) {
-      var p = prod(l.p);
-      return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13px;color:'+C.ink+'">'+p.code+'</div><div style="font-size:11px;color:'+C.muted+'">tipo '+p.insp+'</div></div>'+
-        stepBtn("QR.qty('"+l.p+"',-1)","&minus;")+'<span style="font-size:13px;min-width:12px;text-align:center">'+l.q+'</span>'+stepBtn("QR.qty('"+l.p+"',1)","+")+
-        '<span style="font-size:12.5px;color:'+C.ink+';min-width:58px;text-align:right">'+money(p.price*l.q)+'</span>'+
-        '<span onclick="QR.rm(\''+l.p+'\')" style="color:'+C.muted+';cursor:pointer;font-size:16px;padding-left:4px">&times;</span></div>';
-    }).join("");
-    var pm = [["pagado","Pagado"],["sena","Seña"],["fiado","Fiado"]].map(function (k) { return chipBtn(k[1], S.payMode===k[0], "QR.setPay('"+k[0]+"')"); }).join("");
-    var senaBox = S.payMode==="sena" ? '<div style="display:flex;align-items:center;gap:10px;background:#FDF4DC;border-radius:10px;padding:10px 12px;margin-top:8px">'+stepBtn("QR.sena(-10000)","&minus;")+'<span style="font-size:14px;color:'+C.bordo+';font-weight:600">Seña '+money(S.sena)+'</span>'+stepBtn("QR.sena(10000)","+")+'<span style="font-size:11.5px;color:'+C.warn+';margin-left:auto">Queda '+money(total-Math.min(total,S.sena))+'</span></div>' : "";
-    var methodBox = S.payMode!=="fiado" ? sec("Medio de pago")+'<div style="display:flex;gap:7px;flex-wrap:wrap">'+["Efectivo","Transferencia","Mercado Pago","Débito"].map(function (m) { return chipBtn(m, S.method===m, "QR.setMethod('"+m+"')"); }).join("")+'</div>' : "";
-    var can = S.clientId && S.cart.length>0;
-    return sheet(bar("Nuevo pedido","x") + '<div style="padding:14px">' +
-      '<p style="font-size:12px;color:'+C.muted+';margin:0 0 6px">Cliente</p><select onchange="QR.client(this.value)" style="width:100%;border:.5px solid '+C.fl+';border-radius:10px;padding:11px;font-size:14px;color:'+(S.clientId?C.ink:C.muted)+';background:#fff">'+opts+'</select>' +
-      '<p style="font-size:12px;color:'+C.muted+';margin:14px 0 6px">Tocá para agregar perfumes</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px">'+grid+'</div>' +
-      (cart ? '<div style="margin-top:12px">'+cart+'</div>' : "") +
-      '<div style="display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 4px"><span style="font-size:13px;color:'+C.muted+'">Total</span><span style="font-size:20px;font-weight:600;color:'+C.bordo+'">'+money(total)+'</span></div>' +
-      '<p style="font-size:12px;color:'+C.muted+';margin:14px 0 6px">¿Cómo paga?</p><div style="display:flex;gap:7px">'+pm+'</div>'+senaBox+methodBox +
-      '<button '+(can?"":"disabled")+' onclick="QR.save()" style="width:100%;background:'+(can?C.bordo:"#D8CFBE")+';color:'+C.crema+';border:none;font-size:15px;padding:14px;border-radius:12px;margin-top:18px;cursor:'+(can?"pointer":"default")+'">Guardar pedido</button></div>');
-  }
-
-  // ---------- helpers UI ----------
-  function sec(t) { return '<p style="font-size:12px;color:'+C.muted+';margin:16px 0 7px">'+t+'</p>'; }
-  function row(t, s, right, onclick) {
-    return '<div '+(onclick?'onclick="'+onclick+'" style="cursor:pointer;':'style="')+'display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13.5px;color:'+C.ink+'">'+t+'</div>'+(s?'<div style="font-size:11.5px;color:'+C.muted+'">'+s+'</div>':"")+'</div>'+(right||"")+'</div>';
-  }
-  function avatar(name, big) { var s = big?52:36; return '<div style="width:'+s+'px;height:'+s+'px;border-radius:50%;background:'+C.cremaSoft+';color:'+C.bordo+';display:flex;align-items:center;justify-content:center;font-size:'+(big?18:13)+'px;font-weight:600;flex-shrink:0">'+ini(name)+'</div>'; }
-  function stepBtn(action, label) { return '<button onclick="'+action+'" style="width:24px;height:24px;border-radius:6px;border:.5px solid '+C.fl+';background:#fff;color:'+C.bordo+';cursor:pointer;font-size:14px;line-height:1">'+label+'</button>'; }
-  function waSvg() { return '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+C.crema+'"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm0 18a8 8 0 01-4.1-1.1l-.3-.2-2.9.8.8-2.8-.2-.3A8 8 0 1112 20zm4.4-6c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.1.1-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2 1 2.4c.1.2 1.6 2.5 4 3.4 1.4.6 2 .6 2.7.5.4 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1z"/></svg>'; }
-  function nav() {
-    var it = [["inicio","Inicio"],["pedidos","Pedidos"],["clientes","Clientes"],["productos","Productos"],["caja","Caja"]];
-    return '<div style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;display:flex;border-top:.5px solid #EEE7DA;background:#fff;z-index:5">' +
-      it.map(function (i) { var on = S.view===i[0]; return '<div onclick="QR.go(\''+i[0]+'\')" style="flex:1;text-align:center;padding:11px 0 12px;font-size:11px;cursor:pointer;color:'+(on?C.bordo:"#B0A290")+';font-weight:'+(on?600:400)+'">'+i[1]+'</div>'; }).join("") + '</div>';
-  }
-  function sheet(inner) { return '<div style="position:fixed;top:0;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:#fff;z-index:20;overflow:auto">'+inner+'</div>'; }
-
-  function render() {
-    var body = { inicio:inicio, pedidos:pedidos, clientes:clientes, productos:productos, caja:caja }[S.view]();
-    var ov = "";
-    if (S.overlay) { if (S.overlay.type==="nuevo") ov=nuevoPedido(); else if (S.overlay.type==="cliente") ov=fichaCliente(S.overlay.id); else if (S.overlay.type==="pedido") ov=fichaPedido(S.overlay.id); }
-    document.getElementById("app").innerHTML = body + nav() + ov;
-  }
-
-  window.QR = {
-    go:function (v) { S.view=v; window.scrollTo(0,0); render(); },
-    setFilter:function (f) { S.filter=f; render(); },
-    setGen:function (g) { S.gen=g; render(); },
-    search:function (v) { S.q=v; var el=document.activeElement; render(); },
-    newOrder:function (id) { S.overlay={type:"nuevo"}; S.cart=[]; S.clientId=id||""; S.payMode="pagado"; S.sena=0; S.method="Efectivo"; render(); },
-    openClient:function (id) { S.overlay={type:"cliente",id:id}; render(); },
-    openOrder:function (id) { S.overlay={type:"pedido",id:id}; S.payMethod="Efectivo"; render(); },
-    close:function () { S.overlay=null; render(); },
-    client:function (v) { S.clientId=v; render(); },
-    add:function (id) { if (!S.cart.filter(function (l){return l.p===id;})[0]) S.cart.push({p:id,q:1}); render(); },
-    qty:function (id, d) { var l=S.cart.filter(function (x){return x.p===id;})[0]; l.q=Math.max(1,l.q+d); render(); },
-    rm:function (id) { S.cart=S.cart.filter(function (l){return l.p!==id;}); render(); },
-    setPay:function (m) { S.payMode=m; if (m==="sena" && !S.sena) { var t=S.cart.reduce(function (s,l){return s+prod(l.p).price*l.q;},0); S.sena=Math.round(t/2/10000)*10000; } render(); },
-    sena:function (d) { var t=S.cart.reduce(function (s,l){return s+prod(l.p).price*l.q;},0); S.sena=Math.max(0,Math.min(t,S.sena+d)); render(); },
-    setMethod:function (m) { S.method=m; render(); },
-    setPayMethod:function (m) { S.payMethod=m; render(); },
-    save:function () {
-      var t=S.cart.reduce(function (s,l){return s+prod(l.p).price*l.q;},0);
-      var pay=[];
-      if (S.payMode==="pagado") pay=[{a:t,m:S.method,d:todayISO()}];
-      else if (S.payMode==="sena" && S.sena>0) pay=[{a:Math.min(t,S.sena),m:S.method,d:todayISO()}];
-      S.orders.unshift({ id:"o"+Date.now(), clientId:S.clientId, date:todayISO(), lines:S.cart.map(function (l){return {p:l.p,q:l.q};}), delivery:"Pendiente", payments:pay });
-      S.cart.forEach(function (l) { var p=prod(l.p); p.stock=Math.max(0,p.stock-l.q); });
-      S.overlay=null; S.view="pedidos"; window.scrollTo(0,0); render();
-    },
-    pay:function (id, amount) { var o=S.orders.filter(function (x){return x.id===id;})[0]; o.payments.push({a:amount,m:S.payMethod,d:todayISO()}); render(); },
-    advance:function (id) {
-      var flow=["Pendiente","Esperando stock","Confirmado","Preparando","Listo","Enviado","Entregado"];
-      var o=S.orders.filter(function (x){return x.id===id;})[0];
-      o.delivery=flow[Math.min(flow.length-1, flow.indexOf(o.delivery)+1)]; render();
-    }
-  };
-
-  render();
+(function(){
+var C={bordo:"#7A1535",bordoD:"#4E0E23",crema:"#FFEDA8",ink:"#2A2020",mut:"#9A8C7C",line:"#F0E9DC",fl:"#E3DAC9",warm:"#FBF8F0",ok:"#146B41",okB:"#DCF3E4",wa:"#8A5A12",waB:"#FDECC4",bad:"#A3352E",badB:"#FBD9D5",prep:"#463A86",prepB:"#ECE9F5",info:"#17307A",infoB:"#E3EAFB"};
+var M=function(n){return "$ "+new Intl.NumberFormat("es-AR").format(Math.round(n||0));};
+var TODAY="2026-07-31";
+var fD=function(d){return d===TODAY?"hoy":d.slice(8,10)+"/"+d.slice(5,7);};
+var uid=function(){return "x"+Math.random().toString(36).slice(2,7);};
+var num=function(id){return parseInt((document.getElementById(id).value||"").replace(/\D/g,""))||0;};
+var val=function(id){return (document.getElementById(id).value||"").trim();};
+var daysBetween=function(d){return Math.round((new Date(TODAY)-new Date(d))/86400000);};
+var P=[
+{id:"p1",code:"Bella",insp:"La Vie Est Belle",gen:"F",stock:1,tester:1,price:40000,cost:22000},
+{id:"p2",code:"Olymp",insp:"Olympea",gen:"F",stock:3,tester:1,price:40000,cost:22000},
+{id:"p3",code:"2Rose",insp:"212 Vip Rose",gen:"F",stock:0,tester:1,price:40000,cost:22000},
+{id:"p4",code:"Adore",insp:"J'adore",gen:"F",stock:2,tester:0,price:40000,cost:22000},
+{id:"p5",code:"Ggirl",insp:"Good Girl",gen:"F",stock:1,tester:1,price:40000,cost:22000},
+{id:"p6",code:"Scndl W",insp:"Scandal",gen:"F",stock:1,tester:1,price:40000,cost:22000},
+{id:"p7",code:"Sauva",insp:"Sauvage",gen:"M",stock:2,tester:0,price:40000,cost:22000},
+{id:"p8",code:"Eros.V",insp:"Eros Versace",gen:"M",stock:1,tester:1,price:40000,cost:22000}];
+var CL=[
+{id:"c1",name:"Ludmila Aguirre",phone:"5492664111111",city:"San Luis",ig:"@ludmi",bday:"14/03",notes:"Le gustan los dulces."},
+{id:"c2",name:"Matias",phone:"5492664222222",city:"San Luis",ig:"",bday:"",notes:""},
+{id:"c3",name:"Joaquin",phone:"5492664333333",city:"Villa Mercedes",ig:"",bday:"",notes:""},
+{id:"c4",name:"Fabiana",phone:"5492664444444",city:"San Luis",ig:"@fabi",bday:"02/09",notes:""},
+{id:"c5",name:"Celia",phone:"5492664555555",city:"San Luis",ig:"",bday:"",notes:""}];
+var T=[
+{id:"t1",name:"Pedido listo",body:"Hola {{nombre}}! Tu pedido de {{perfumes}} ya esta listo para retirar."},
+{id:"t2",name:"Ya llego",body:"Hola {{nombre}}! Ya llego el perfume que esperabas. Coordinamos la entrega?"},
+{id:"t3",name:"Recordatorio de saldo",body:"Hola {{nombre}}! Te recuerdo que quedo un saldo de {{saldo}}. Cuando puedas lo cerramos, gracias!"},
+{id:"t4",name:"Cumpleanos",body:"Feliz cumple {{nombre}}! Te dejamos 15% off esta semana como regalito."},
+{id:"t5",name:"Reactivacion",body:"Hola {{nombre}}! Hace rato no charlamos. Llegaron perfumes nuevos, te muestro?"}];
+var U=[{id:"u1",name:"Nazarena",role:"Administrador"},{id:"u2",name:"Sofia",role:"Ventas"}];
+var ROLES={Administrador:"Ve y maneja todo el sistema",Ventas:"Pedidos, clientes y caja","Deposito":"Stock y productos",Marketing:"Campanas y plantillas"};
+var S={view:"inicio",ov:null,filter:"Todos",gen:"Todos",q:"",pq:"",focusEl:null,cart:[],clientId:"",payMode:"pagado",sena:0,buyCart:[],confirmDel:null,mktab:"camp",mseg:"cumple",mtid:"t4",editTpl:null,editUser:null,
+orders:[
+{id:"o1",clientId:"c1",date:"2026-07-28",lines:[{p:"p1",q:1},{p:"p2",q:2}],delivery:"Listo",pays:[{a:60000,m:"Efectivo",d:"2026-07-28"}]},
+{id:"o2",clientId:"c2",date:"2026-07-27",lines:[{p:"p3",q:1}],delivery:"Pendiente",pays:[{a:40000,m:"Transf.",d:"2026-07-27"}]},
+{id:"o3",clientId:"c3",date:"2026-06-20",lines:[{p:"p8",q:1}],delivery:"Entregado",pays:[{a:40000,m:"Efectivo",d:"2026-06-20"}]},
+{id:"o4",clientId:"c4",date:"2026-07-31",lines:[{p:"p6",q:1},{p:"p1",q:1}],delivery:"Entregado",pays:[{a:80000,m:"MP",d:"2026-07-31"}]}],
+buys:[{id:"b1",date:"2026-07-05",lines:[{p:"p1",q:3,c:22000},{p:"p2",q:5,c:22000},{p:"p6",q:3,c:22000}],total:242000}]};
+var lastKey=null;
+var prod=function(i){return P.filter(function(p){return p.id===i;})[0];};
+var cli=function(i){return CL.filter(function(c){return c.id===i;})[0];};
+var oT=function(o){return o.lines.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);};
+var oP=function(o){return o.pays.reduce(function(s,x){return s+x.a;},0);};
+var oB=function(o){return Math.max(0,oT(o)-oP(o));};
+var pS=function(o){var b=oB(o);return b===0?"Pagado":(oP(o)>0?"Fiado":"Pendiente");};
+var sm=function(o){return o.lines.map(function(l){return prod(l.p).code;}).join(", ");};
+var st=function(i){var os=S.orders.filter(function(o){return o.clientId===i;});var sp=os.reduce(function(s,o){return s+oP(o);},0);var db=os.reduce(function(s,o){return s+oB(o);},0);var t=os.reduce(function(s,o){return s+oT(o);},0);return{sp:sp,db:db,n:os.length,av:os.length?t/os.length:0,os:os};};
+var lv=function(i){var s=st(i).sp;return s>=300000?"Oro":(s>=120000?"Plata":"Bronce");};
+var lastOrderDays=function(i){var os=S.orders.filter(function(o){return o.clientId===i;});if(!os.length)return 999;var m=os.map(function(o){return o.date;}).sort().reverse()[0];return daysBetween(m);};
+var invertido=function(){return S.buys.reduce(function(s,b){return s+b.total;},0);};
+var ventas=function(){return S.orders.reduce(function(s,o){return s+oT(o);},0);};
+var ventasMes=function(){return S.orders.filter(function(o){return o.date.slice(0,7)==="2026-07";}).reduce(function(s,o){return s+oT(o);},0);};
+var costoVendido=function(){return S.orders.reduce(function(s,o){return s+o.lines.reduce(function(a,l){return a+prod(l.p).cost*l.q;},0);},0);};
+var ganancia=function(){return ventas()-costoVendido();};
+var roi=function(){var inv=invertido();return inv?Math.round(ganancia()/inv*100):0;};
+var pal=[["#FFE6B8","#FBC97E","#7A4E08"],["#E7E0FB","#C9BCF1","#463A86"],["#DCEAFF","#B9D0FB","#17307A"],["#D4F5E0","#AEE7C4","#146B41"],["#FBE4EE","#F6C9DD","#8E3560"]];
+var badge=function(n){var x=n.split(" ").map(function(w){return w[0];}).slice(0,2).join("").toUpperCase();var g=pal[n.charCodeAt(0)%5];return '<div style="width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,'+g[0]+','+g[1]+');color:'+g[2]+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex-shrink:0">'+x+'</div>';};
+var avatarBig=function(n){var g=pal[n.charCodeAt(0)%5];var x=n.split(" ").map(function(w){return w[0];}).slice(0,2).join("").toUpperCase();return '<div style="width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,'+g[0]+','+g[1]+');color:'+g[2]+';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;flex-shrink:0">'+x+'</div>';};
+var pc={Pendiente:[C.waB,C.wa],"Esperando stock":[C.prepB,C.prep],Confirmado:[C.infoB,C.info],Preparando:[C.prepB,C.prep],Listo:["#FBE0E7",C.bordo],Enviado:[C.infoB,C.info],Entregado:[C.okB,C.ok],Pagado:[C.okB,C.ok],Fiado:[C.waB,C.wa]};
+var pill=function(l){var c=pc[l]||[C.warm,C.mut];return '<span style="font-size:11px;padding:3px 10px;border-radius:20px;background:'+c[0]+';color:'+c[1]+'">'+l+'</span>';};
+var SV=function(p,sz){return '<svg width="'+(sz||20)+'" height="'+(sz||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>';};
+var IC={home:'<path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/>',ped:'<rect x="6" y="4" width="12" height="16" rx="2"/><path d="M9 8h6M9 12h6"/>',cli:'<circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/>',prod:'<path d="M5 8l7-3 7 3-7 3z"/><path d="M5 8v8l7 3 7-3V8"/>',caja:'<path d="M3 7h18v12H3z"/><path d="M3 11h18"/><path d="M7 4l5 3 5-3"/>',plus:'<path d="M12 5v14M5 12h14"/>',pen:'<path d="M4 20h4L19 9l-4-4L4 16z"/>',chk:'<path d="M5 12l5 5 9-11"/>',min:'<path d="M5 12h14"/>',tr:'<path d="M5 7h14M9 7V5h6v2M6 7l1 13h10l1-13"/>',srch:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',bell:'<path d="M6 8a6 6 0 0112 0c0 5 2 6 2 6H4s2-1 2-6"/><path d="M10 20a2 2 0 004 0"/>'};
+var waSvg=function(c){return '<svg width="17" height="17" viewBox="0 0 24 24" fill="'+(c||C.crema)+'"><path d="M12 2a10 10 0 00-8.5 15.2L2 22l4.9-1.3A10 10 0 1012 2zm4.4 12c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 01-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5c.1-.1.1-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2 1 2.4c.1.2 1.6 2.5 4 3.4 1.4.6 2 .6 2.7.5.4 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1z"/></svg>';};
+var donut=function(pct){var r=27,c=2*Math.PI*r,off=c*(1-pct/100);return '<svg width="66" height="66" viewBox="0 0 66 66"><circle cx="33" cy="33" r="'+r+'" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="8"/><circle cx="33" cy="33" r="'+r+'" fill="none" stroke="#FFEDA8" stroke-width="8" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'" transform="rotate(-90 33 33)"/></svg>';};
+var spark=function(col,d){return '<svg width="62" height="18" viewBox="0 0 62 18" fill="none"><path d="'+d+'" stroke="'+col+'" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';};
+var bar=function(t,back,right){return '<div class="bar" style="background:linear-gradient(150deg,#7A1535,#4E0E23);color:#FFEDA8;padding:15px 16px;display:flex;align-items:center;gap:10px;font-size:15.5px">'+(back?'<span onclick="'+(back==="home"?"Q.go(&#39;inicio&#39;)":"Q.close()")+'" style="cursor:pointer;display:flex">'+SV(back==="x"?'<path d="M6 6l12 12M18 6L6 18"/>':'<path d="M15 5l-7 7 7 7"/>',20)+'</span>':'')+'<span style="flex:1">'+t+'</span>'+(right||"")+'</div>';};
+var mcard=function(l,v,bg,fg){return '<div style="background:'+bg+';border-radius:18px;padding:13px 14px;box-shadow:0 5px 14px rgba(0,0,0,.05)"><p style="font-size:11.5px;color:'+C.mut+';margin:0 0 4px">'+l+'</p><p style="font-size:20px;font-weight:800;color:'+fg+';margin:0">'+v+'</p></div>';};
+var chip=function(l,on,act){return '<button onclick="'+act+'" style="font-size:12.5px;padding:6px 13px;border-radius:20px;cursor:pointer;border:none;background:'+(on?"linear-gradient(135deg,#7A1535,#B32A57)":"#fff")+';color:'+(on?C.crema:"#6A5C4C")+';box-shadow:'+(on?"0 3px 8px rgba(122,21,53,.25)":"0 1px 3px rgba(0,0,0,.06)")+';white-space:nowrap">'+l+'</button>';};
+var sec=function(t){return '<p style="font-size:13px;font-weight:700;color:'+C.ink+';margin:18px 4px 9px">'+t+'</p>';};
+var pbtn=function(){return 'background:linear-gradient(135deg,#7A1535,#B32A57);color:#FFEDA8;border:none;padding:14px;border-radius:14px;font-size:14.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 6px 14px rgba(122,21,53,.28)';};
+var field=function(id,ph,v){return '<input id="'+id+'" value="'+(v===undefined||v===null?"":(""+v).replace(/"/g,"&quot;"))+'" placeholder="'+ph+'" style="width:100%;border:none;background:#fff;border-radius:12px;padding:12px 13px;font-size:14px;outline:none;margin-bottom:9px;box-shadow:0 2px 6px rgba(0,0,0,.05)"/>';};
+var pad=function(x){return '<div style="padding:14px">'+x+'</div>';};
+var sbtn=function(){return 'width:24px;height:24px;border-radius:7px;border:none;background:#F1E8D8;color:#7A1535;cursor:pointer;display:flex;align-items:center;justify-content:center';};
+var empty=function(t){return '<div style="text-align:center;color:'+C.mut+';font-size:12.5px;padding:20px 0">'+t+'</div>';};
+var cardw=function(inner){return '<div style="background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 4px 12px rgba(0,0,0,.05)">'+inner+'</div>';};
+var searchBox=function(id,ph,v){return '<div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:12px;padding:10px 12px;margin-bottom:10px;color:'+C.mut+';box-shadow:0 2px 6px rgba(0,0,0,.05)">'+SV(IC.srch,16)+'<input id="'+id+'" value="'+v+'" oninput="Q.'+(id==="cs"?"search":"psearch")+'(this.value)" placeholder="'+ph+'" style="border:none;outline:none;font-size:14px;width:100%;background:none;color:'+C.ink+'"/></div>';};
+function inicio(){var hoy=0,pe=0;S.orders.forEach(function(o){o.pays.forEach(function(x){if(x.d===TODAY)hoy+=x.a;});if(o.delivery!=="Entregado")pe++;});
+var bdays=CL.filter(function(c){return c.bday;});
+var hero='<div style="background:linear-gradient(150deg,#7A1535,#4E0E23);padding:17px 17px 40px;border-radius:0 0 28px 28px;position:relative;overflow:hidden">'+
+'<svg viewBox="0 0 340 160" preserveAspectRatio="none" style="position:absolute;left:0;right:0;bottom:-10px;width:100%;height:110px;opacity:.5"><path d="M-20 90 q60 -55 120 -15 t130 -5 q60 20 130 -25 v120 h-380z" fill="#9B2B4C"/></svg>'+
+'<svg width="24" height="24" viewBox="0 0 24 24" fill="#FFEDA8" style="position:absolute;top:14px;right:100px;opacity:.5"><path d="M12 2l2.2 7.8L22 12l-7.8 2.2L12 22l-2.2-7.8L2 12l7.8-2.2z"/></svg>'+
+'<svg width="18" height="18" viewBox="0 0 24 24" fill="#D9AEC0" style="position:absolute;top:66px;left:130px;opacity:.6"><path d="M12 21s-7-4.5-9.5-8.5C.5 9 2 5.5 5.5 5.5c2 0 3.3 1.3 4 2.3 .7-1 2-2.3 4-2.3C21 5.5 22.5 9 21.5 12.5 19 16.5 12 21 12 21z"/></svg>'+
+'<div style="position:relative;display:flex;align-items:flex-start;gap:8px"><div style="flex:1"><div style="font-family:Georgia,serif;color:#FFEDA8;font-size:21px;line-height:1">\u00a1Que rico!<span style="font-style:italic;font-size:12px;font-family:system-ui;opacity:.8;margin-left:4px">Perfume</span></div><div style="color:#F3DCBC;font-size:12.5px;margin-top:5px">\u00a1Hola! Buen d\u00eda</div></div>'+
+'<div onclick="Q.mas()" style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#FFEDA8;cursor:pointer">'+SV(IC.grid,18)+'</div>'+
+'<div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#FFEDA8">'+SV(IC.bell,18)+'</div></div></div>';
+var c='<div style="padding:0 14px;margin-top:-24px;position:relative">'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
+'<div style="background:linear-gradient(140deg,#DCEAFF,#B9D0FB);border-radius:20px;padding:14px;box-shadow:0 8px 18px rgba(91,157,243,.22)"><p style="font-size:11px;color:#4A5B7D;margin:0 0 4px">Ventas de hoy</p><p style="font-size:20px;font-weight:800;color:#17307A;margin:0 0 5px">'+M(hoy)+'</p>'+spark("#2E62C4","M2 13L13 8L23 11L33 4L43 7L60 2")+'</div>'+
+'<div style="background:linear-gradient(140deg,#D4F5E0,#AEE7C4);border-radius:20px;padding:14px;box-shadow:0 8px 18px rgba(63,185,121,.22)"><p style="font-size:11px;color:#457A5E;margin:0 0 4px">Ganancia</p><p style="font-size:20px;font-weight:800;color:#146B41;margin:0 0 5px">'+M(ganancia())+'</p>'+spark("#1C9459","M2 12L13 13L23 8L33 9L43 5L60 3")+'</div></div>'+
+'<div onclick="Q.go(\'caja\')" style="background:linear-gradient(135deg,#3F2F98,#8B6FD0);border-radius:22px;padding:14px 16px;margin-top:11px;display:flex;align-items:center;gap:14px;box-shadow:0 10px 22px rgba(63,47,152,.28);cursor:pointer;position:relative;overflow:hidden"><div style="position:relative;width:66px;height:66px;flex-shrink:0">'+donut(roi())+'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800">'+roi()+'%</div></div><div style="flex:1;color:#fff"><p style="font-size:12px;opacity:.85;margin:0 0 3px">Retorno de tu inversi\u00f3n</p><p style="font-size:15px;font-weight:700;margin:0">Tu plata rinde</p><p style="font-size:11px;opacity:.8;margin:4px 0 0">Invertido '+M(invertido())+'</p></div></div>'+
+'<div style="display:flex;gap:9px;margin-top:12px">'+
+'<div onclick="Q.newOrder()" style="flex:1;background:linear-gradient(135deg,#7A1535,#B32A57);border-radius:18px;padding:14px 10px;color:#FFEDA8;box-shadow:0 8px 16px rgba(122,21,53,.28);cursor:pointer">'+SV(IC.plus,21)+'<div style="font-size:12px;margin-top:8px;line-height:1.15;font-weight:600">Nuevo<br>pedido</div></div>'+
+'<div onclick="Q.cobrar()" style="flex:1;background:linear-gradient(135deg,#FFD873,#FAB629);border-radius:18px;padding:14px 10px;color:#6B4405;box-shadow:0 8px 16px rgba(250,182,41,.28);cursor:pointer">'+SV(IC.caja,21)+'<div style="font-size:12px;margin-top:8px;line-height:1.15;font-weight:600">Cobrar<br>fiados</div></div>'+
+'<div onclick="Q.newBuy()" style="flex:1;background:linear-gradient(135deg,#5E8BF0,#3F5FC4);border-radius:18px;padding:14px 10px;color:#fff;box-shadow:0 8px 16px rgba(63,95,196,.28);cursor:pointer">'+SV(IC.prod,21)+'<div style="font-size:12px;margin-top:8px;line-height:1.15;font-weight:600">Compra<br>Leduft</div></div></div>'+
+(bdays.length?'<div onclick="Q.go(\'marketing\')" style="background:linear-gradient(135deg,#FBE4EE,#F6C9DD);border-radius:18px;padding:13px 15px;margin-top:12px;display:flex;align-items:center;gap:12px;cursor:pointer"><div style="width:40px;height:40px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px">&#127874;</div><div style="flex:1"><div style="font-size:13.5px;font-weight:600;color:#8E3560">Pr\u00f3ximos cumplea\u00f1os</div><div style="font-size:11.5px;color:#A86A87">'+bdays.map(function(c){return c.name.split(" ")[0]+" ("+c.bday+")";}).join(" \u00b7 ")+'</div></div></div>':"")+
+sec("Pedidos pendientes")+
+(S.orders.filter(function(o){return o.delivery!=="Entregado";}).slice(0,3).map(function(o){return '<div onclick="Q.oOrder(\''+o.id+'\')" style="background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:11px;box-shadow:0 4px 12px rgba(0,0,0,.05);cursor:pointer">'+badge(cli(o.clientId).name)+'<div style="flex:1"><div style="font-size:14px">'+cli(o.clientId).name+'</div><div style="font-size:11.5px;color:'+C.mut+'">'+sm(o)+'</div></div>'+pill(o.delivery)+'</div>';}).join("")||empty("Todo al d\u00eda"))+
+'<div style="height:8px"></div></div>';
+return hero+c;}
+function pedidos(){var fs=["Todos","Pendientes","Fiados","Listos"];var sh=S.orders.filter(function(o){if(S.filter==="Pendientes")return o.delivery!=="Entregado";if(S.filter==="Fiados")return oB(o)>0;if(S.filter==="Listos")return o.delivery==="Listo";return true;});
+var list=sh.map(function(o){return '<div onclick="Q.oOrder(\''+o.id+'\')" style="background:#fff;border-radius:16px;padding:12px 13px;margin-bottom:10px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;gap:11px;align-items:center">'+badge(cli(o.clientId).name)+'<div style="flex:1"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:14px">'+cli(o.clientId).name+'</span><span style="font-size:14px;font-weight:700">'+M(oT(o))+'</span></div><div style="font-size:11.5px;color:'+C.mut+';margin:2px 0 6px">'+sm(o)+'</div><div style="display:flex;gap:6px;align-items:center">'+pill(o.delivery)+pill(pS(o))+'<span style="font-size:11px;color:#B0A290;margin-left:auto">'+fD(o.date)+'</span></div></div></div>';}).join("")||empty("Sin pedidos");
+return bar("Pedidos")+pad('<div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px">'+fs.map(function(f){return chip(f,S.filter===f,"Q.setF(\'"+f+"\')");}).join("")+'</div>'+list+'<button onclick="Q.newOrder()" style="'+pbtn()+';width:100%;margin-top:4px">'+SV(IC.plus,18)+' Nuevo pedido</button>');}
+function clientes(){var sh=CL.filter(function(c){return c.name.toLowerCase().indexOf(S.q.toLowerCase())>=0;});
+var list=sh.map(function(c){var s=st(c.id);return '<div onclick="Q.oClient(\''+c.id+'\')" style="background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.05)">'+badge(c.name)+'<div style="flex:1"><div style="font-size:14px">'+c.name+' <span style="font-size:11px;color:'+C.wa+';background:'+C.waB+';padding:1px 8px;border-radius:20px">'+lv(c.id)+'</span></div><div style="font-size:11.5px;color:'+C.mut+'">'+c.city+' \u00b7 '+s.n+' compras</div></div>'+(s.db>0?'<span style="font-size:12.5px;color:'+C.bad+';font-weight:600">'+M(s.db)+'</span>':"")+'</div>';}).join("")||empty("Sin resultados");
+return bar("Clientes",null,'<span onclick="Q.editClient()" style="cursor:pointer;color:'+C.crema+';display:flex">'+SV(IC.plus,20)+'</span>')+pad(searchBox("cs","Buscar cliente...",S.q)+list);}
+function productos(){var fs=[["Todos","Todos"],["F","Mujer"],["M","Hombre"]];var sh=P.filter(function(p){return (S.gen==="Todos"||p.gen===S.gen)&&(p.code+" "+p.insp).toLowerCase().indexOf(S.pq.toLowerCase())>=0;});
+var list=sh.map(function(p){return '<div onclick="Q.editProd(\''+p.id+'\')" style="background:#fff;border-radius:16px;padding:11px 13px;margin-bottom:9px;display:flex;align-items:center;gap:11px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.05)"><div style="width:40px;height:40px;border-radius:13px;background:linear-gradient(135deg,#F6E7C9,#EFD5A6);color:#7A1535;display:flex;align-items:center;justify-content:center">'+SV('<path d="M9 3h6v3l1 2v13H8V8l1-2z"/>',20)+'</div><div style="flex:1"><div style="font-size:13.5px">'+p.code+'</div><div style="font-size:11.5px;color:'+C.mut+'">tipo '+p.insp+' \u00b7 tester: '+p.tester+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">'+M(p.price)+'</div><div style="font-size:11.5px;color:'+(p.stock===0?C.bad:C.mut)+'">'+(p.stock===0?"sin stock":p.stock+" u.")+'</div></div></div>';}).join("")||empty("Sin resultados");
+return bar("Productos",null,'<span onclick="Q.editProd()" style="cursor:pointer;color:'+C.crema+';display:flex">'+SV(IC.plus,20)+'</span>')+pad(searchBox("ps","Buscar perfume...",S.pq)+'<div style="display:flex;gap:7px;margin-bottom:10px">'+fs.map(function(f){return chip(f[1],S.gen===f[0],"Q.setG(\'"+f[0]+"\')");}).join("")+'</div>'+list);}
+function caja(){var ps=[];S.orders.forEach(function(o){o.pays.forEach(function(x){ps.push({t:1,a:x.a,txt:cli(o.clientId).name+" \u00b7 "+x.m,d:x.d});});});S.buys.forEach(function(b){ps.push({t:0,a:b.total,txt:"Compra a Leduft \u00b7 "+b.lines.reduce(function(s,l){return s+l.q;},0)+" u.",d:b.date});});ps.sort(function(a,b){return a.d<b.d?1:-1;});
+var list=ps.map(function(p){return '<div style="display:flex;align-items:center;gap:11px;background:#fff;border-radius:14px;padding:10px 13px;margin-bottom:8px;box-shadow:0 3px 10px rgba(0,0,0,.04)"><div style="width:34px;height:34px;border-radius:10px;background:'+(p.t?"#DCF3E4":"#FBE0E7")+';color:'+(p.t?C.ok:C.bordo)+';display:flex;align-items:center;justify-content:center">'+SV(p.t?'<path d="M12 5v14M5 12h14"/>':'<path d="M5 12h14"/>',17)+'</div><div style="flex:1"><div style="font-size:13.5px">'+p.txt+'</div><div style="font-size:11.5px;color:'+C.mut+'">'+fD(p.d)+'</div></div><span style="font-size:14px;color:'+(p.t?C.ok:C.bad)+';font-weight:700">'+(p.t?"+":"-")+M(p.a)+'</span></div>';}).join("");
+var hero='<div style="background:linear-gradient(135deg,#3F2F98,#8B6FD0);border-radius:20px;padding:15px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 10px 22px rgba(63,47,152,.28);margin-bottom:12px"><div style="position:relative;width:66px;height:66px;flex-shrink:0">'+donut(roi())+'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:800">'+roi()+'%</div></div><div style="flex:1;color:#fff"><p style="font-size:12px;opacity:.85;margin:0 0 3px">Tu rentabilidad</p><p style="font-size:16px;font-weight:700;margin:0">'+M(ganancia())+' de ganancia</p><p style="font-size:11px;opacity:.8;margin:4px 0 0">Invertido '+M(invertido())+' \u00b7 Vendido '+M(ventas())+'</p></div></div>';
+return bar("Caja y rentabilidad")+pad(hero+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">'+mcard("Invertido en stock",M(invertido()),"#FBE0E7",C.bordo)+mcard("Ventas facturado",M(ventas()),"#E3EAFB",C.info)+'</div>'+'<button onclick="Q.newBuy()" style="'+pbtn()+';width:100%;margin-top:12px">'+SV(IC.plus,17)+' Registrar compra a Leduft</button>'+sec("Movimientos")+list);}
+var fillTpl=function(body,c){var os=S.orders.filter(function(o){return o.clientId===c.id;});var perf=os[0]?sm(os[0]):"tus perfumes";return body.replace(/{{nombre}}/g,c.name.split(" ")[0]).replace(/{{perfumes}}/g,perf).replace(/{{saldo}}/g,M(st(c.id).db));};
+function segClients(seg){if(seg==="cumple")return CL.filter(function(c){return c.bday;});if(seg==="deuda")return CL.filter(function(c){return st(c.id).db>0;});if(seg==="vip")return CL.filter(function(c){return lv(c.id)==="Oro";});if(seg==="inactivo")return CL.filter(function(c){return lastOrderDays(c.id)>20;});return CL.slice();}
+function marketing(){
+var tabs='<div style="display:flex;background:#fff;border-bottom:.5px solid #EEE7DA">'+
+'<div onclick="Q.mktab(\'camp\')" style="flex:1;text-align:center;padding:11px;font-size:13px;cursor:pointer;color:'+(S.mktab==="camp"?"#7A1535":"#9A8C7C")+';font-weight:'+(S.mktab==="camp"?700:400)+';border-bottom:2.5px solid '+(S.mktab==="camp"?"#7A1535":"transparent")+'">Campa\u00f1as</div>'+
+'<div onclick="Q.mktab(\'plant\')" style="flex:1;text-align:center;padding:11px;font-size:13px;cursor:pointer;color:'+(S.mktab==="plant"?"#7A1535":"#9A8C7C")+';font-weight:'+(S.mktab==="plant"?700:400)+';border-bottom:2.5px solid '+(S.mktab==="plant"?"#7A1535":"transparent")+'">Plantillas</div></div>';
+var content;
+if(S.mktab==="camp"){
+var segs=[["cumple","Cumplea\u00f1os"],["inactivo","No compran hace rato"],["vip","VIP"],["deuda","Con saldo"]];
+var clients=segClients(S.mseg);var tpl=T.filter(function(t){return t.id===S.mtid;})[0];
+var list=clients.length?clients.map(function(c){var msg=fillTpl(tpl.body,c);return '<div style="background:#fff;border-radius:16px;padding:12px 13px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.05)"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">'+badge(c.name)+'<div style="flex:1;font-size:14px">'+c.name+'</div></div><div style="background:#F3F7EE;border-radius:10px;padding:9px 11px;font-size:12px;color:#3A4A34;line-height:1.4">'+msg+'</div><button onclick="Q.wsend(\''+c.phone+'\',\''+encodeURIComponent(msg)+'\')" style="width:100%;margin-top:9px;background:linear-gradient(135deg,#25a35a,#1c8a4a);color:#fff;border:none;padding:9px;border-radius:11px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">'+waSvg("#fff")+' Enviar a '+c.name.split(" ")[0]+'</button></div>';}).join(""):empty("No hay clientes en este grupo");
+content=pad('<p style="font-size:12px;color:'+C.mut+';margin:0 0 8px">Eleg\u00ed a qui\u00e9n enviar</p><div style="display:flex;flex-wrap:wrap;gap:7px">'+segs.map(function(s){return chip(s[1],S.mseg===s[0],"Q.mseg(\'"+s[0]+"\')");}).join("")+'</div><p style="font-size:12px;color:'+C.mut+';margin:14px 0 7px">Mensaje a enviar</p><select onchange="Q.mtpl(this.value)" style="width:100%;border:none;background:#fff;border-radius:12px;padding:11px;font-size:13.5px;box-shadow:0 2px 6px rgba(0,0,0,.05)">'+T.map(function(t){return '<option value="'+t.id+'"'+(t.id===S.mtid?" selected":"")+'>'+t.name+'</option>';}).join("")+'</select><div style="display:flex;justify-content:space-between;align-items:center;margin:16px 4px 9px"><span style="font-size:13px;font-weight:700">'+clients.length+' cliente'+(clients.length===1?"":"s")+'</span><span style="font-size:11px;color:'+C.mut+'">revis\u00e1s y mand\u00e1s de a uno</span></div>'+list);
+}else{
+var list=T.map(function(t){var isE=S.editTpl===t.id;
+if(isE)return '<div style="background:#fff;border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.06)"><input id="tplname" value="'+t.name.replace(/"/g,"&quot;")+'" style="width:100%;border:none;background:#F7F2E9;border-radius:9px;padding:9px 11px;font-size:13.5px;font-weight:600;outline:none;margin-bottom:8px"/><textarea id="tpltext" style="width:100%;border:none;background:#F7F2E9;border-radius:9px;padding:10px 11px;font-size:13px;outline:none;min-height:70px;resize:none;line-height:1.4">'+t.body+'</textarea><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+["nombre","perfumes","saldo"].map(function(v){return '<span onclick="Q.insVar(\'{{'+v+'}}\')" style="font-size:11px;background:#ECE9F5;color:#463A86;padding:4px 10px;border-radius:20px;cursor:pointer">+ {{'+v+'}}</span>';}).join("")+'</div><div style="display:flex;gap:8px;margin-top:11px"><button onclick="Q.tcancel()" style="flex:1;border:none;background:#F1E8D8;color:#7A1535;padding:9px;border-radius:10px;font-size:13px;cursor:pointer">Cancelar</button><button onclick="Q.tsave(\''+t.id+'\')" style="flex:1;background:linear-gradient(135deg,#7A1535,#B32A57);color:#FFEDA8;border:none;padding:9px;border-radius:10px;font-size:13px;cursor:pointer">Guardar</button></div></div>';
+return '<div style="background:#fff;border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.05)"><div style="display:flex;align-items:center;margin-bottom:7px"><span style="flex:1;font-size:13.5px;font-weight:600">'+t.name+'</span><span onclick="Q.tedit(\''+t.id+'\')" style="cursor:pointer;color:'+C.mut+'">'+SV(IC.pen,16)+'</span></div><div style="font-size:12.5px;color:#6A5C4C;line-height:1.4">'+t.body.replace(/{{(\w+)}}/g,'<span style="color:#463A86;background:#ECE9F5;padding:1px 6px;border-radius:6px;font-size:11.5px">$1</span>')+'</div></div>';}).join("");
+content=pad('<p style="font-size:12px;color:'+C.mut+';margin:0 0 12px">Tus mensajes. Lo violeta se reemplaza solo con los datos de cada cliente.</p>'+list+'<button onclick="Q.tnew()" style="'+pbtn()+';width:100%">'+SV(IC.plus,17)+' Nueva plantilla</button>');
+}
+return bar("Marketing","home")+tabs+content;
+}
+function reportes(){
+var m={};S.orders.forEach(function(o){o.lines.forEach(function(l){m[l.p]=(m[l.p]||0)+l.q;});});
+var top=Object.keys(m).map(function(k){return [prod(k).code,m[k]];}).sort(function(a,b){return b[1]-a[1];}).slice(0,5);
+var maxT=top.length?top[0][1]:1;
+var bars=top.map(function(r,i){var g=pal[i%5];return '<div style="display:flex;align-items:center;gap:9px;margin-bottom:9px"><span style="font-size:12.5px;width:66px;flex-shrink:0">'+r[0]+'</span><div style="flex:1;background:#F3EEE4;border-radius:8px;height:16px;overflow:hidden"><div style="width:'+(r[1]/maxT*100)+'%;height:100%;background:linear-gradient(90deg,'+g[0]+','+g[1]+');border-radius:8px"></div></div><span style="font-size:12px;font-weight:700;color:#7A1535;width:20px;text-align:right">'+r[1]+'</span></div>';}).join("")||empty("Sin ventas a\u00fan");
+var week=[["Sem 1",180],["Sem 2",240],["Sem 3",160],["Sem 4",320]];var maxW=320;
+var wbars='<div style="display:flex;align-items:flex-end;gap:10px;height:90px;padding-top:6px">'+week.map(function(w){return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div style="font-size:10px;color:#7A1535;font-weight:700;margin-bottom:3px">'+w[1]+'k</div><div style="width:100%;background:linear-gradient(180deg,#B32A57,#7A1535);border-radius:8px 8px 0 0;height:'+(w[1]/maxW*70)+'px"></div><div style="font-size:10px;color:#9A8C7C;margin-top:4px">'+w[0]+'</div></div>';}).join("")+'</div>';
+var inact=CL.map(function(c){return [c,lastOrderDays(c.id)];}).filter(function(x){return x[1]>20;}).sort(function(a,b){return b[1]-a[1];}).slice(0,3);
+var inactHtml=inact.length?inact.map(function(x){var c=x[0];return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid '+C.line+'">'+badge(c.name)+'<div style="flex:1"><div style="font-size:13.5px">'+c.name+'</div><div style="font-size:11px;color:'+C.mut+'">'+(x[1]>500?"nunca compr\u00f3":"hace "+x[1]+" d\u00edas")+'</div></div></div>';}).join(""):empty("Todos compraron hace poco");
+return bar("Reportes","home")+pad(
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px">'+mcard("Ventas del mes",M(ventasMes()),"#E3EAFB",C.info)+mcard("Clientes",CL.length,"#FBE4EE","#8E3560")+'</div>'+
+cardw('<p style="font-size:13px;font-weight:700;margin:0 0 12px">M\u00e1s vendidos</p>'+bars)+
+cardw('<p style="font-size:13px;font-weight:700;margin:0 0 12px">Ventas por semana</p>'+wbars)+
+cardw('<p style="font-size:13px;font-weight:700;margin:0 0 10px">Hace rato no compran</p>'+inactHtml+'<button onclick="Q.reactivar()" style="'+pbtn()+';width:100%;margin-top:11px;padding:10px">Armarles una campa\u00f1a</button>'));
+}
+function usuarios(){
+var list=U.map(function(u){var isE=S.editUser===u.id;
+if(isE)return '<div style="background:#fff;border-radius:16px;padding:13px;margin-bottom:10px;box-shadow:0 4px 12px rgba(0,0,0,.06)"><input id="uname" value="'+u.name.replace(/"/g,"&quot;")+'" style="width:100%;border:none;background:#F7F2E9;border-radius:9px;padding:10px 11px;font-size:14px;outline:none;margin-bottom:8px"/><select id="urole" style="width:100%;border:none;background:#F7F2E9;border-radius:9px;padding:10px 11px;font-size:13.5px;margin-bottom:6px">'+Object.keys(ROLES).map(function(r){return '<option'+(u.role===r?" selected":"")+'>'+r+'</option>';}).join("")+'</select><div style="display:flex;gap:8px;margin-top:8px"><button onclick="Q.ucancel()" style="flex:1;border:none;background:#F1E8D8;color:#7A1535;padding:9px;border-radius:10px;font-size:13px;cursor:pointer">Cancelar</button><button onclick="Q.usave(\''+u.id+'\')" style="flex:1;background:linear-gradient(135deg,#7A1535,#B32A57);color:#FFEDA8;border:none;padding:9px;border-radius:10px;font-size:13px;cursor:pointer">Guardar</button></div></div>';
+return '<div style="background:#fff;border-radius:16px;padding:12px 13px;margin-bottom:10px;display:flex;align-items:center;gap:11px;box-shadow:0 4px 12px rgba(0,0,0,.05)">'+badge(u.name)+'<div style="flex:1"><div style="font-size:14px">'+u.name+'</div><div style="font-size:11px;color:'+C.mut+'">'+ROLES[u.role]+'</div></div><span style="font-size:11px;background:#ECE9F5;color:#463A86;padding:3px 10px;border-radius:20px">'+u.role+'</span><span onclick="Q.uedit(\''+u.id+'\')" style="cursor:pointer;color:'+C.mut+';margin-left:4px">'+SV(IC.pen,16)+'</span></div>';}).join("");
+var rlist=Object.keys(ROLES).map(function(r){return '<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:.5px solid '+C.line+'"><span style="font-size:12.5px;font-weight:600;color:#463A86">'+r+'</span><span style="font-size:11.5px;color:'+C.mut+'">'+ROLES[r]+'</span></div>';}).join("");
+return bar("Usuarios","home")+pad('<p style="font-size:12px;color:'+C.mut+';margin:0 0 12px">Tu equipo. Cada uno entra con su usuario y ve solo lo que su rol permite.</p>'+list+'<button onclick="Q.unew()" style="'+pbtn()+';width:100%;margin-bottom:16px">'+SV(IC.plus,17)+' Agregar usuario</button>'+cardw('<p style="font-size:13px;font-weight:700;margin:0 0 10px">Qu\u00e9 puede hacer cada rol</p>'+rlist));
+}
+function sheet(x){return '<div class="sheet" id="sheet">'+x+'</div>';}
+function masMenu(){var items=[["marketing","Marketing","Campa\u00f1as y plantillas de WhatsApp","\ud83c\udfaf"],["reportes","Reportes","C\u00f3mo va el negocio","\ud83d\udcca"],["usuarios","Usuarios","Tu equipo y permisos","\ud83d\udc65"]];
+return sheet(bar("M\u00e1s","x")+pad(items.map(function(i){return '<div onclick="Q.goV(\''+i[0]+'\')" style="background:#fff;border-radius:16px;padding:14px 15px;margin-bottom:11px;display:flex;align-items:center;gap:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,.05)"><div style="width:44px;height:44px;border-radius:13px;background:#F7F2E9;display:flex;align-items:center;justify-content:center;font-size:22px">'+i[3]+'</div><div style="flex:1"><div style="font-size:14.5px;font-weight:600">'+i[1]+'</div><div style="font-size:11.5px;color:'+C.mut+'">'+i[2]+'</div></div><span style="color:'+C.mut+'">'+SV('<path d="M9 6l6 6-6 6"/>',18)+'</span></div>';}).join("")));}
+function fClient(id){var c=cli(id),s=st(id);var last=s.os[0]?sm(s.os[0]):"un perfume";var kind=s.db>0?"saldo":"gracias";
+var hist=s.os.map(function(o){return '<div onclick="Q.oOrder(\''+o.id+'\')" style="background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.04)"><div style="flex:1"><div style="font-size:13.5px">'+sm(o)+'</div><div style="font-size:11.5px;color:'+C.mut+'">'+fD(o.date)+'</div></div><div style="text-align:right"><div style="font-size:13px;font-weight:600">'+M(oT(o))+'</div>'+pill(pS(o))+'</div></div>';}).join("")||empty("Sin compras todav\u00eda");
+return sheet(bar("Cliente","x",'<span onclick="Q.editClient(\''+id+'\')" style="cursor:pointer;color:'+C.crema+';display:flex">'+SV(IC.pen,19)+'</span>')+'<div style="padding:16px">'+
+'<div style="display:flex;align-items:center;gap:12px">'+avatarBig(c.name)+'<div><div style="font-size:17px">'+c.name+' <span style="font-size:11px;color:'+C.wa+';background:'+C.waB+';padding:1px 9px;border-radius:20px">'+lv(id)+'</span></div><div style="font-size:12.5px;color:'+C.mut+';margin-top:3px">'+c.city+(c.bday?" \u00b7 cumple "+c.bday:"")+(c.ig?" \u00b7 "+c.ig:"")+'</div></div></div>'+
+(c.notes?'<div style="background:#fff;border-radius:12px;padding:10px 13px;margin-top:12px;font-size:12.5px;color:'+C.ink+';box-shadow:0 3px 10px rgba(0,0,0,.04)">'+c.notes+'</div>':"")+
+'<button onclick="Q.wa(\''+c.phone+'\',\''+kind+'\',\''+encodeURIComponent(JSON.stringify({name:c.name.split(" ")[0],saldo:M(s.db),prod:last}))+'\')" style="'+pbtn()+';width:100%;margin:14px 0">'+waSvg()+' Enviar WhatsApp</button>'+
+'<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px">'+mcard("Gast\u00f3",M(s.sp),"#fff",C.ink)+mcard("Compras",s.n,"#fff",C.ink)+mcard("Ticket prom.",M(s.av),"#fff",C.ink)+mcard("Te debe",M(s.db),s.db>0?C.badB:"#fff",s.db>0?C.bad:C.ink)+'</div>'+sec("Historial de compras")+hist+
+'<button onclick="Q.newOrder(\''+id+'\')" style="width:100%;border:1.5px solid '+C.bordo+';color:'+C.bordo+';background:#fff;font-size:14px;padding:12px;border-radius:14px;margin-top:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">'+SV(IC.plus,17)+' Nuevo pedido para '+c.name.split(" ")[0]+'</button></div>');}
+function formClient(id){var c=id?cli(id):{name:"",phone:"",city:"",ig:"",bday:"",notes:""};
+return sheet(bar(id?"Editar cliente":"Nuevo cliente","x")+'<div style="padding:16px">'+
+'<p style="font-size:12px;color:'+C.mut+';margin:0 0 6px">Nombre y apellido</p>'+field("f_name","Ej: Ludmila Aguirre",c.name)+
+'<p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">WhatsApp (549266...)</p>'+field("f_phone","549266...",c.phone)+
+'<p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Ciudad</p>'+field("f_city","San Luis",c.city)+
+'<div style="display:flex;gap:9px"><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Cumplea\u00f1os</p>'+field("f_bday","14/03",c.bday)+'</div><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Instagram</p>'+field("f_ig","@usuario",c.ig)+'</div></div>'+
+'<p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Notas</p><textarea id="f_notes" placeholder="Gustos, referencias..." style="width:100%;border:none;background:#fff;border-radius:12px;padding:12px 13px;font-size:14px;outline:none;min-height:60px;resize:none;box-shadow:0 2px 6px rgba(0,0,0,.05)">'+(c.notes||"")+'</textarea>'+
+'<button onclick="Q.saveClient('+(id?"'"+id+"'":"null")+')" style="'+pbtn()+';width:100%;margin-top:12px">'+SV(IC.chk,18)+' Guardar cliente</button></div>');}
+function formProd(id){var p=id?prod(id):{code:"",insp:"",gen:"F",price:40000,cost:22000,stock:0,tester:0};
+return sheet(bar(id?"Editar producto":"Nuevo producto","x")+'<div style="padding:16px">'+
+'<p style="font-size:12px;color:'+C.mut+';margin:0 0 6px">C\u00f3digo (Leduft)</p>'+field("f_code","Ej: Bella",p.code)+
+'<p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Inspirado en</p>'+field("f_insp","Ej: La Vie Est Belle",p.insp)+
+'<div style="display:flex;gap:9px"><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Costo (Leduft)</p>'+field("f_cost","22000",p.cost)+'</div><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Precio venta</p>'+field("f_price","40000",p.price)+'</div></div>'+
+'<div style="display:flex;gap:9px"><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Stock venta</p>'+field("f_stock","0",p.stock)+'</div><div style="flex:1"><p style="font-size:12px;color:'+C.mut+';margin:8px 0 6px">Stock tester</p>'+field("f_tester","0",p.tester)+'</div></div>'+
+'<button onclick="Q.saveProd('+(id?"'"+id+"'":"null")+')" style="'+pbtn()+';width:100%;margin-top:8px">'+SV(IC.chk,18)+' Guardar producto</button></div>');}
+function fPedido(id){var o=S.orders.filter(function(x){return x.id===id;})[0];if(!o)return sheet(bar("Pedido","x")+empty("Pedido borrado"));var c=cli(o.clientId),t=oT(o),pa=oP(o),b=oB(o);
+var lines=o.lines.map(function(l){var p=prod(l.p);return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13.5px">'+p.code+'</div><div style="font-size:11.5px;color:'+C.mut+'">tipo '+p.insp+' \u00b7 x'+l.q+'</div></div><span style="font-size:13px">'+M(p.price*l.q)+'</span></div>';}).join("");
+var payBox=b>0?'<div style="background:#fff;border-radius:14px;padding:12px;margin-top:14px;box-shadow:0 3px 10px rgba(0,0,0,.05)"><div style="font-size:12px;color:'+C.mut+';margin-bottom:8px">Registrar pago del saldo</div><button onclick="Q.pay(\''+id+'\','+b+')" style="'+pbtn()+';width:100%;padding:11px">'+SV(IC.chk,17)+' Cobrar '+M(b)+'</button></div>':"";
+var delBox=S.confirmDel===id?'<div style="background:'+C.badB+';border-radius:14px;padding:12px;margin-top:12px"><div style="font-size:13px;color:'+C.bad+';margin-bottom:9px">\u00bfSeguro? El stock vuelve a su lugar.</div><div style="display:flex;gap:8px"><button onclick="Q.noDel()" style="flex:1;border:none;background:#fff;padding:10px;border-radius:10px;font-size:13px;cursor:pointer">No</button><button onclick="Q.del(\''+id+'\')" style="flex:1;background:'+C.bad+';color:#fff;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer">S\u00ed, borrar</button></div></div>':'<button onclick="Q.askDel(\''+id+'\')" style="width:100%;border:1.5px solid '+C.badB+';color:'+C.bad+';background:#fff;padding:11px;border-radius:14px;font-size:13.5px;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:6px">'+SV(IC.tr,16)+' Borrar pedido</button>';
+return sheet(bar("Pedido de "+c.name,"x")+'<div style="padding:16px"><div style="display:flex;gap:8px;margin-bottom:12px">'+pill(o.delivery)+pill(pS(o))+'</div><div style="background:#fff;border-radius:14px;padding:4px 14px;box-shadow:0 3px 10px rgba(0,0,0,.04)">'+lines+'</div>'+
+'<div style="display:flex;justify-content:space-between;margin:12px 4px 4px"><span style="font-size:13px;color:'+C.mut+'">Total</span><span style="font-size:18px;font-weight:800;color:'+C.bordo+'">'+M(t)+'</span></div><div style="display:flex;justify-content:space-between;font-size:13px;color:'+C.mut+';padding:0 4px"><span>Pagado</span><span>'+M(pa)+'</span></div>'+(b>0?'<div style="display:flex;justify-content:space-between;font-size:13.5px;color:'+C.bad+';font-weight:700;margin-top:2px;padding:0 4px"><span>Saldo</span><span>'+M(b)+'</span></div>':"")+payBox+
+'<div style="display:flex;gap:8px;margin-top:14px">'+(o.delivery!=="Entregado"?'<button onclick="Q.adv(\''+id+'\')" style="flex:1;border:1.5px solid '+C.bordo+';color:'+C.bordo+';background:#fff;padding:11px;border-radius:14px;font-size:13.5px;cursor:pointer">Avanzar estado</button>':"")+'<button onclick="Q.wa(\''+c.phone+'\',\'listo\',\''+encodeURIComponent(JSON.stringify({name:c.name.split(" ")[0],prod:sm(o),saldo:M(b)}))+'\')" style="flex:1;'+pbtn()+';padding:11px">'+waSvg()+' WhatsApp</button></div>'+delBox+'</div>');}
+function nuevo(){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);
+var opts='<option value="">Eleg\u00ed un cliente...</option>'+CL.map(function(c){return '<option value="'+c.id+'"'+(S.clientId===c.id?" selected":"")+'>'+c.name+'</option>';}).join("");
+var grid=P.map(function(p){return '<button onclick="Q.add(\''+p.id+'\')" style="text-align:left;border:none;background:#fff;border-radius:12px;padding:10px 11px;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.05)"><div style="font-size:12.5px">'+p.code+'</div><div style="font-size:10.5px;color:'+C.mut+'">'+(p.stock===0?"se pide":p.stock+" u.")+'</div></button>';}).join("");
+var cart=S.cart.map(function(l){var p=prod(l.p);return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13px">'+p.code+'</div></div><button onclick="Q.qty(\''+l.p+'\',-1)" style="'+sbtn()+'">'+SV(IC.min,13)+'</button><span style="font-size:13px;min-width:12px;text-align:center">'+l.q+'</span><button onclick="Q.qty(\''+l.p+'\',1)" style="'+sbtn()+'">'+SV(IC.plus,13)+'</button><span style="font-size:12.5px;min-width:56px;text-align:right">'+M(p.price*l.q)+'</span></div>';}).join("");
+var pm=[["pagado","Pagado"],["sena","Se\u00f1a"],["fiado","Fiado"]].map(function(k){return chip(k[1],S.payMode===k[0],"Q.setP(\'"+k[0]+"\')");}).join("");
+var senaB=S.payMode==="sena"?'<div style="display:flex;align-items:center;gap:10px;background:#FDF4DC;border-radius:12px;padding:10px 12px;margin-top:8px"><button onclick="Q.sena(-10000)" style="'+sbtn()+'">'+SV(IC.min,13)+'</button><span style="font-size:14px;color:'+C.bordo+';font-weight:700">Se\u00f1a '+M(S.sena)+'</span><button onclick="Q.sena(10000)" style="'+sbtn()+'">'+SV(IC.plus,13)+'</button><span style="font-size:11.5px;color:'+C.wa+';margin-left:auto">Queda '+M(t-Math.min(t,S.sena))+'</span></div>':"";
+var can=S.clientId&&S.cart.length>0;
+return sheet(bar("Nuevo pedido","x")+'<div style="padding:14px"><p style="font-size:12px;color:'+C.mut+';margin:0 0 6px">Cliente</p><select onchange="Q.cl(this.value)" style="width:100%;border:none;background:#fff;border-radius:12px;padding:12px;font-size:14px;color:'+(S.clientId?C.ink:C.mut)+';box-shadow:0 2px 6px rgba(0,0,0,.05)">'+opts+'</select><p style="font-size:12px;color:'+C.mut+';margin:14px 0 6px">Toc\u00e1 para agregar</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+grid+'</div>'+(cart?'<div style="background:#fff;border-radius:14px;padding:2px 13px;margin-top:12px;box-shadow:0 3px 10px rgba(0,0,0,.04)">'+cart+'</div>':"")+'<div style="display:flex;justify-content:space-between;align-items:baseline;margin:12px 4px 4px"><span style="font-size:13px;color:'+C.mut+'">Total</span><span style="font-size:20px;font-weight:800;color:'+C.bordo+'">'+M(t)+'</span></div><p style="font-size:12px;color:'+C.mut+';margin:14px 0 6px">\u00bfC\u00f3mo paga?</p><div style="display:flex;gap:7px">'+pm+'</div>'+senaB+'<button '+(can?"":"disabled")+' onclick="Q.save()" style="width:100%;background:'+(can?"linear-gradient(135deg,#7A1535,#B32A57)":"#D8CFBE")+';color:#FFEDA8;border:none;font-size:15px;padding:15px;border-radius:14px;margin-top:18px;cursor:'+(can?"pointer":"default")+'">Guardar pedido</button></div>');}
+function nuevaCompra(){var t=S.buyCart.reduce(function(s,l){return s+prod(l.p).cost*l.q;},0);
+var grid=P.map(function(p){return '<button onclick="Q.badd(\''+p.id+'\')" style="text-align:left;border:none;background:#fff;border-radius:12px;padding:10px 11px;cursor:pointer;box-shadow:0 2px 7px rgba(0,0,0,.05)"><div style="font-size:12.5px">'+p.code+'</div><div style="font-size:10.5px;color:'+C.mut+'">'+M(p.cost)+' c/u</div></button>';}).join("");
+var cart=S.buyCart.map(function(l){var p=prod(l.p);return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:.5px solid '+C.line+'"><div style="flex:1"><div style="font-size:13px">'+p.code+'</div><div style="font-size:11px;color:'+C.mut+'">'+M(p.cost)+' c/u</div></div><button onclick="Q.bqty(\''+l.p+'\',-1)" style="'+sbtn()+'">'+SV(IC.min,13)+'</button><span style="font-size:13px;min-width:12px;text-align:center">'+l.q+'</span><button onclick="Q.bqty(\''+l.p+'\',1)" style="'+sbtn()+'">'+SV(IC.plus,13)+'</button><span style="font-size:12.5px;min-width:56px;text-align:right">'+M(p.cost*l.q)+'</span></div>';}).join("");
+var can=S.buyCart.length>0;
+return sheet(bar("Compra a Leduft","x")+'<div style="padding:14px"><p style="font-size:12px;color:'+C.mut+';margin:0 0 6px">Toc\u00e1 los perfumes que compraste</p><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+grid+'</div>'+(cart?'<div style="background:#fff;border-radius:14px;padding:2px 13px;margin-top:12px;box-shadow:0 3px 10px rgba(0,0,0,.04)">'+cart+'</div>':"")+'<div style="display:flex;justify-content:space-between;align-items:baseline;margin:14px 4px 4px"><span style="font-size:13px;color:'+C.mut+'">Inversi\u00f3n total</span><span style="font-size:20px;font-weight:800;color:'+C.bordo+'">'+M(t)+'</span></div><button '+(can?"":"disabled")+' onclick="Q.saveBuy()" style="width:100%;background:'+(can?"linear-gradient(135deg,#7A1535,#B32A57)":"#D8CFBE")+';color:#FFEDA8;border:none;font-size:15px;padding:15px;border-radius:14px;margin-top:14px;cursor:'+(can?"pointer":"default")+'">Registrar compra (suma al stock)</button></div>');}
+function nav(){var it=[["inicio","Inicio",IC.home],["pedidos","Pedidos",IC.ped],["clientes","Clientes",IC.cli],["productos","Productos",IC.prod],["caja","Caja",IC.caja]];
+return '<div class="nav" style="display:flex;background:#fff;border-top:.5px solid #EEE7DA;box-shadow:0 -3px 12px rgba(0,0,0,.04)">'+it.map(function(i){var on=S.view===i[0];return '<div onclick="Q.go(\''+i[0]+'\')" style="flex:1;text-align:center;padding:9px 0 9px;font-size:10px;cursor:pointer;color:'+(on?C.bordo:"#B0A290")+';font-weight:'+(on?700:400)+'"><span style="display:flex;justify-content:center;margin-bottom:2px">'+SV(i[2],21)+'</span>'+i[1]+'</div>';}).join("")+'</div>';}
+function render(){
+var sheetEl=document.getElementById("sheet");var sc=sheetEl?sheetEl.scrollTop:window.scrollY;
+var vmap={inicio:inicio,pedidos:pedidos,clientes:clientes,productos:productos,caja:caja,marketing:marketing,reportes:reportes,usuarios:usuarios};
+var v=(vmap[S.view]||inicio)();var ov="";
+if(S.ov){var o=S.ov;ov=o.t==="nuevo"?nuevo():o.t==="cli"?fClient(o.id):o.t==="ped"?fPedido(o.id):o.t==="fc"?formClient(o.id):o.t==="fp"?formProd(o.id):o.t==="buy"?nuevaCompra():o.t==="mas"?masMenu():"";}
+document.getElementById("app").innerHTML=v+nav()+ov;
+var key=S.view+"|"+(S.ov?S.ov.t+(S.ov.id||""):"")+"|"+S.mktab+S.mseg+S.filter+S.gen;
+var ns=document.getElementById("sheet");
+if(key===lastKey){if(ns)ns.scrollTop=sc;else window.scrollTo(0,sc);}else{if(ns)ns.scrollTop=0;else window.scrollTo(0,0);}
+lastKey=key;
+if(S.focusEl){var e=document.getElementById(S.focusEl);if(e){var vv=e.value;e.focus();e.value="";e.value=vv;}S.focusEl=null;}}
+window.Q={
+go:function(v){S.view=v;S.ov=null;render();},goV:function(v){S.view=v;S.ov=null;render();},
+mas:function(){S.ov={t:"mas"};render();},
+setF:function(f){S.filter=f;render();},setG:function(g){S.gen=g;render();},
+cobrar:function(){S.view="pedidos";S.filter="Fiados";S.ov=null;render();},
+reactivar:function(){S.view="marketing";S.mktab="camp";S.mseg="inactivo";S.ov=null;render();},
+search:function(v){S.q=v;S.focusEl="cs";render();},psearch:function(v){S.pq=v;S.focusEl="ps";render();},
+close:function(){S.ov=null;S.confirmDel=null;render();},noDel:function(){S.confirmDel=null;render();},
+oClient:function(i){S.ov={t:"cli",id:i};render();},oOrder:function(i){S.ov={t:"ped",id:i};S.confirmDel=null;render();},
+editClient:function(i){S.ov={t:"fc",id:i||null};render();},editProd:function(i){S.ov={t:"fp",id:i||null};render();},
+saveClient:function(i){var n=val("f_name");if(!n)return;var d={name:n,phone:val("f_phone"),city:val("f_city"),ig:val("f_ig"),bday:val("f_bday"),notes:val("f_notes")};if(i){var c=cli(i);for(var k in d)c[k]=d[k];S.ov={t:"cli",id:i};}else{CL.push({id:uid(),name:d.name,phone:d.phone,city:d.city,ig:d.ig,bday:d.bday,notes:d.notes});S.ov=null;S.view="clientes";}render();},
+saveProd:function(i){var code=val("f_code");if(!code)return;var d={code:code,insp:val("f_insp"),price:num("f_price"),cost:num("f_cost"),stock:num("f_stock"),tester:num("f_tester")};if(i){var p=prod(i);for(var k in d)p[k]=d[k];}else{P.push({id:uid(),gen:"F",code:d.code,insp:d.insp,price:d.price,cost:d.cost,stock:d.stock,tester:d.tester});}S.ov=null;S.view="productos";render();},
+newOrder:function(i){S.ov={t:"nuevo"};S.cart=[];S.clientId=i||"";S.payMode="pagado";S.sena=0;render();},
+cl:function(v){S.clientId=v;render();},add:function(i){if(!S.cart.filter(function(l){return l.p===i;})[0])S.cart.push({p:i,q:1});render();},
+qty:function(i,d){var l=S.cart.filter(function(x){return x.p===i;})[0];l.q=Math.max(1,l.q+d);render();},
+setP:function(m){S.payMode=m;if(m==="sena"&&!S.sena){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);S.sena=Math.round(t/2/10000)*10000;}render();},
+sena:function(d){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);S.sena=Math.max(0,Math.min(t,S.sena+d));render();},
+save:function(){var t=S.cart.reduce(function(s,l){return s+prod(l.p).price*l.q;},0);var pay=[];if(S.payMode==="pagado")pay=[{a:t,m:"Efectivo",d:TODAY}];else if(S.payMode==="sena"&&S.sena>0)pay=[{a:Math.min(t,S.sena),m:"Efectivo",d:TODAY}];S.orders.unshift({id:uid(),clientId:S.clientId,date:TODAY,lines:S.cart.map(function(l){return{p:l.p,q:l.q};}),delivery:"Pendiente",pays:pay});S.cart.forEach(function(l){var p=prod(l.p);p.stock=Math.max(0,p.stock-l.q);});S.ov=null;S.view="pedidos";render();},
+pay:function(i,a){var o=S.orders.filter(function(x){return x.id===i;})[0];o.pays.push({a:a,m:"Efectivo",d:TODAY});render();},
+adv:function(i){var fl=["Pendiente","Esperando stock","Confirmado","Preparando","Listo","Enviado","Entregado"];var o=S.orders.filter(function(x){return x.id===i;})[0];o.delivery=fl[Math.min(fl.length-1,fl.indexOf(o.delivery)+1)];render();},
+askDel:function(i){S.confirmDel=i;render();},
+del:function(i){var o=S.orders.filter(function(x){return x.id===i;})[0];if(o)o.lines.forEach(function(l){var p=prod(l.p);if(p)p.stock+=l.q;});S.orders=S.orders.filter(function(x){return x.id!==i;});S.ov=null;S.confirmDel=null;S.view="pedidos";render();},
+newBuy:function(){S.ov={t:"buy"};S.buyCart=[];render();},
+badd:function(i){if(!S.buyCart.filter(function(l){return l.p===i;})[0])S.buyCart.push({p:i,q:1});render();},
+bqty:function(i,d){var l=S.buyCart.filter(function(x){return x.p===i;})[0];l.q=Math.max(1,l.q+d);render();},
+saveBuy:function(){var t=S.buyCart.reduce(function(s,l){return s+prod(l.p).cost*l.q;},0);S.buys.unshift({id:uid(),date:TODAY,lines:S.buyCart.map(function(l){return{p:l.p,q:l.q,c:prod(l.p).cost};}),total:t});S.buyCart.forEach(function(l){prod(l.p).stock+=l.q;});S.ov=null;S.view="caja";render();},
+mktab:function(t){S.mktab=t;S.editTpl=null;render();},mseg:function(s){S.mseg=s;render();},mtpl:function(t){S.mtid=t;render();},
+wsend:function(ph,msg){window.open("https://wa.me/"+ph+"?text="+msg,"_blank");},
+tedit:function(id){S.editTpl=id;render();},tnew:function(){var id="t"+Date.now();T.push({id:id,name:"Nueva plantilla",body:"Hola {{nombre}}! "});S.editTpl=id;render();},tcancel:function(){S.editTpl=null;render();},
+tsave:function(id){var t=T.filter(function(x){return x.id===id;})[0];t.name=document.getElementById("tplname").value||t.name;t.body=document.getElementById("tpltext").value;S.editTpl=null;render();},
+insVar:function(v){var ta=document.getElementById("tpltext");if(!ta)return;var s=ta.selectionStart||ta.value.length;ta.value=ta.value.slice(0,s)+v+ta.value.slice(ta.selectionEnd||s);ta.focus();ta.selectionStart=ta.selectionEnd=s+v.length;},
+uedit:function(id){S.editUser=id;render();},unew:function(){var id="u"+Date.now();U.push({id:id,name:"Nuevo usuario",role:"Ventas"});S.editUser=id;render();},ucancel:function(){S.editUser=null;render();},
+usave:function(id){var u=U.filter(function(x){return x.id===id;})[0];u.name=document.getElementById("uname").value||u.name;u.role=document.getElementById("urole").value;S.editUser=null;render();},
+wa:function(ph,kind,ex){var d=JSON.parse(decodeURIComponent(ex));var t={listo:"Hola "+d.name+"! Tu pedido de "+d.prod+" ya esta listo. Avisame cualquier cosa.",saldo:"Hola "+d.name+"! Te recuerdo que quedo un saldo de "+d.saldo+". Cuando puedas lo cerramos!",gracias:"Hola "+d.name+"! Gracias por tu compra."};window.open("https://wa.me/"+ph+"?text="+encodeURIComponent(t[kind]||t.gracias),"_blank");}
+};
+render();
 })();
 </script>
 </body>
