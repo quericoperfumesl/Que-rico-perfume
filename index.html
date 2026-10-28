@@ -429,8 +429,10 @@ const METODOS=['Efectivo','Transferencia','Mercado Pago','Otro'];
 const KEY={Pedidos:'id',Items:'id',Cobros:'id',Clientes:'nombre',Catalogo:'codigo',Compras:'numero',CompraItems:'id',Mensajes:'nombre',Config:'clave'};
 
 /* ================== estado y sincronización ================== */
+const URL_PLANILLA='https://script.google.com/macros/s/AKfycbyat8c8vafzlQBUKXQrwJL9NnwMBRwIG6FlDdnq8HT7CGWStx9_rOitOorH4ZLNjufL/exec';
 let cfg=LS.get('nota.cfg',{url:'',pin:'',nombre:''});
-let demo=!cfg.url;
+if(!cfg.url)cfg.url=URL_PLANILLA;
+let demo=!cfg.pin;
 let base=null,S=null,D=null,outbox=[];
 let busy=false,syncErr='',lastSync=LS.get('nota.last',0);
 const V={view:'inicio',per:'all',gen:'all',chart:'ventas',pq:'',pf:'Todos',cq:'',cf:'Todos',sq:'',sg:'all',sonly:false,cper:'all'};
@@ -578,7 +580,7 @@ function renderNav(){
 }
 function render(){renderNav();setStatus();renderBanner();renderView()}
 function renderBanner(){
-  $('#banner').innerHTML=demo?`<div class="banner"><span class="brand-mark" style="width:34px;height:34px">${ic('drop',18)}</span><p><b>Estás viendo datos de ejemplo.</b> Conectá tu planilla de Google para trabajar con tus pedidos, clientes y stock reales.</p><button class="btn sm" data-a="settings">Conectar mi planilla</button></div>`:'';
+  $('#banner').innerHTML=demo?`<div class="banner"><span class="brand-mark" style="width:34px;height:34px">${ic('drop',18)}</span><p><b>Estás viendo datos de ejemplo.</b> Escribí la clave de la planilla para ver tus pedidos, clientes y stock reales.</p><button class="btn sm" data-a="settings">Escribir la clave</button></div>`:'';
 }
 function renderView(){
   const v=V.view,el=$('#view');
@@ -874,7 +876,7 @@ function saveCompra(){
 function sheetAjustes(){
   F={kind:'ajustes'};
   openSheet('Ajustes y conexión','',`
-  <div class="box"><h4>Tu planilla de Google</h4><div style="display:grid;gap:12px"><div class="field"><label class="lbl" for="aUrl">Dirección del script (termina en /exec)</label><input class="in" id="aUrl" value="${esc(cfg.url)}" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></div><div class="field"><label class="lbl" for="aPin">Clave</label><input class="in" id="aPin" type="password" value="${esc(cfg.pin)}" placeholder="La que elegiste en la planilla" autocomplete="off"></div><div class="field"><label class="lbl" for="aNom">Tu nombre (para el saludo)</label><input class="in" id="aNom" value="${esc(cfg.nombre)}" placeholder="Opcional"></div><button class="btn block" data-a="saveCfg">${ic('check')}Guardar y conectar</button>${!demo?`<button class="btn ghost block" data-a="syncNow">${ic('refresh')}Actualizar ahora</button>`:''}<p class="muted" style="margin:0;font-size:12.5px" id="aMsg">${demo?'Ahora estás viendo datos de ejemplo.':syncErr?'Último error: '+esc(syncErr):lastSync?'Última actualización: '+new Date(lastSync).toLocaleString('es-AR'):''}${outbox.length?` · ${outbox.length} cambio(s) esperando para guardarse`:''}</p></div></div>
+  <div class="box"><h4>Tu planilla de Google</h4><div style="display:grid;gap:12px"><div class="field"><label class="lbl" for="aPin">Clave</label><input class="in" id="aPin" type="password" value="${esc(cfg.pin)}" placeholder="La que elegiste en la planilla" autocomplete="off"></div><details><summary class="muted" style="font-size:12.5px;cursor:pointer">Dirección de la planilla (no hace falta tocarla)</summary><input class="in" id="aUrl" value="${esc(cfg.url)}" autocomplete="off" style="margin-top:8px;font-size:13px"></details><div class="field"><label class="lbl" for="aNom">Tu nombre (para el saludo)</label><input class="in" id="aNom" value="${esc(cfg.nombre)}" placeholder="Opcional"></div><button class="btn block" data-a="saveCfg">${ic('check')}Guardar y conectar</button>${!demo?`<button class="btn ghost block" data-a="syncNow">${ic('refresh')}Actualizar ahora</button>`:''}<p class="muted" style="margin:0;font-size:12.5px" id="aMsg">${demo?'Escribí la clave que configuraste en la planilla y tocá Guardar y conectar.':syncErr?'Último error: '+esc(syncErr):lastSync?'Última actualización: '+new Date(lastSync).toLocaleString('es-AR'):''}${outbox.length?` · ${outbox.length} cambio(s) esperando para guardarse`:''}</p></div></div>
   <div class="box"><h4>Reponer</h4><div class="field"><label class="lbl" for="aUm">Avisarme cuando queden (stock + en camino) ≤</label><input class="in num" id="aUm" inputmode="numeric" value="${num(cfgVal('umbral_reponer',0))}"></div><button class="btn soft sm" style="margin-top:10px" data-a="saveUm">Guardar</button></div>
   <div class="box"><h4>Mensajes de WhatsApp</h4><p class="muted" style="margin:0 0 10px;font-size:12.5px">Usá {{nombre}}, {{perfumes}} y {{saldo}}: se completan solos.</p><div class="rows">${S.Mensajes.map(m=>`<button class="row" data-a="editMsj" data-v="${esc(m.nombre)}"><div class="t"><b>${esc(m.nombre)}</b><small>${esc(m.texto)}</small></div>${ic('chev',16)}</button>`).join('')}</div><button class="btn soft sm" style="margin-top:10px" data-a="editMsj" data-v="">${ic('plus')}Nueva plantilla</button></div>
   ${demo?'':`<button class="btn ghost block" data-a="goDemo">Ver datos de ejemplo</button>`}`);
@@ -925,7 +927,8 @@ const ACT={
   delCompra:(v,el)=>arm(el,()=>{closeSheet();commit([{op:'delete',t:'Compras',key:v},{op:'deleteWhere',t:'CompraItems',col:'compra',val:v}],'Compra eliminada')}),
   copy:v=>{try{navigator.clipboard.writeText(v).then(()=>toast('Copiado'),()=>toast(v))}catch(e){toast(v)}},
   saveCfg:async()=>{
-    const url=$('#aUrl').value.trim(),pin=$('#aPin').value.trim(),nom=$('#aNom').value.trim();
+    const url=$('#aUrl').value.trim()||URL_PLANILLA,pin=$('#aPin').value.trim(),nom=$('#aNom').value.trim();
+    if(!pin){$('#aMsg').textContent='Escribí la clave.';return}
     cfg.nombre=nom;
     if(!url){LS.set('nota.cfg',cfg);render();toast('Guardado');return}
     if(!/^https:\/\/script\.google(usercontent)?\.com\//.test(url)){$('#aMsg').textContent='La dirección tiene que empezar con https://script.google.com/…';return}
