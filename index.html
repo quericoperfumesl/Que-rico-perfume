@@ -86,6 +86,7 @@ h1,h2,h3{font-family:var(--f-disp);margin:0;text-wrap:balance;letter-spacing:-.0
 .top-r{display:flex;align-items:center;gap:8px}
 .mbrand{display:none}
 .bnav{display:none}
+.fab{display:none}
 
 /* ---------- piezas comunes ---------- */
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-l);padding:20px;box-shadow:var(--shadow);min-width:0}
@@ -245,6 +246,28 @@ button.row:hover .t b{color:var(--acc-txt)}
 .dual i.a{background:linear-gradient(180deg,var(--ok),color-mix(in srgb,var(--ok) 60%,var(--card)))}
 .dual i.b{background:repeating-linear-gradient(-45deg,var(--bad-soft) 0 6px,color-mix(in srgb,var(--bad-soft) 60%,var(--bad)) 6px 8px)}
 
+/* ---------- contenido ---------- */
+.prox{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.pday{display:flex;gap:12px;align-items:center;text-align:left;padding:10px;border-radius:16px;background:var(--card-2);border:1px solid var(--line);min-width:0}
+.pd{display:grid;justify-items:center;width:52px;flex:none;padding:6px 0;border-radius:12px;background:var(--card);border:1px solid var(--line);line-height:1.1}
+.pd small{font-size:10.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.pd b{font-family:var(--f-disp);font-size:22px}
+.pt{display:grid;gap:3px;min-width:0;justify-items:start}
+.pt b{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.pt small{color:var(--mute);font-size:12px}
+.board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;align-items:start}
+.bcol{background:var(--glass);border:1px solid var(--line);border-radius:var(--r-l);padding:12px;display:grid;gap:10px;min-width:0}
+.bcol header{display:flex;align-items:center;gap:8px;padding:2px 2px 4px}
+.bcol header b{color:var(--mute);font-size:13px;flex:1}
+.kcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r-m);padding:14px;display:grid;gap:8px;cursor:pointer;box-shadow:var(--shadow);min-width:0}
+.kcard:hover{border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
+.kcard > b{font-weight:500;font-size:14.5px;line-height:1.3}
+.kcard .btn{justify-self:start}
+.clamp{color:var(--mute);font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.kmeta{display:flex;flex-wrap:wrap;gap:10px;font-size:12px;color:var(--ink-2)}
+.kmeta span{display:inline-flex;align-items:center;gap:4px}
+.kseg{display:none}
+details summary{list-style:none}
 /* ---------- panel lateral / hoja ---------- */
 .ov{position:fixed;inset:0;z-index:60}
 .scrim{position:absolute;inset:0;background:rgba(16,12,40,.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:fade .2s}
@@ -295,6 +318,7 @@ body.lock{overflow:hidden}
 
 /* ---------- responsive ---------- */
 @media (max-width:1180px){
+  .board{grid-template-columns:repeat(2,minmax(0,1fr))}
   .s4{grid-column:span 6}.s8{grid-column:span 12}
   .dash > .hero{grid-column:span 12}
   .dash > .kpis{grid-column:span 12}
@@ -316,10 +340,12 @@ body.lock{overflow:hidden}
   .top-t h1{font-size:25px}
   .top-r .btn{display:none}
   .top-r .status{display:none}
-  .bnav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;z-index:40;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
+  .bnav{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));position:fixed;left:0;right:0;bottom:0;z-index:40;padding:8px max(10px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(10px,env(safe-area-inset-left,0px));background:var(--glass);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--line)}
   .bnav a,.bnav button{display:grid;justify-items:center;gap:3px;font-size:10.5px;color:var(--mute);text-decoration:none;padding:4px 0}
   .bnav svg{width:22px;height:22px}
   .bnav a[aria-current="page"]{color:var(--acc-txt)}
+  .fab{display:grid;position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(80px + env(safe-area-inset-bottom,0px));z-index:41;width:56px;height:56px;border-radius:18px;place-items:center;background:linear-gradient(140deg,var(--navy),var(--acc-2));color:var(--on-acc);box-shadow:0 12px 24px -8px var(--acc)}
+  .fab svg{width:26px;height:26px}
   .bnav .plus span{width:46px;height:46px;border-radius:16px;margin-top:-20px;display:grid;place-items:center;background:linear-gradient(140deg,var(--acc),var(--acc-2));color:var(--on-acc);box-shadow:0 10px 20px -8px var(--acc)}
   .s4,.s6,.s8,.s12{grid-column:span 12}
   .dash{gap:14px}
@@ -337,6 +363,12 @@ body.lock{overflow:hidden}
   .srow .gc,.srow .vc,.srow .cc{display:none}
   .srow .sub{display:block;grid-area:sub;text-align:right;font-size:11.5px;color:var(--mute)}
   .strip{grid-template-columns:1fr 1fr}
+  .kseg{display:flex;width:100%;margin-bottom:12px;overflow-x:auto}
+  .kseg button{flex:1;white-space:nowrap;padding:0 10px}
+  .board{grid-template-columns:minmax(0,1fr)}
+  .board .bcol{display:none;background:none;border:0;padding:0}
+  .board .bcol header{display:none}
+  .board[data-act="Inspo"] .bcol[data-col="Inspo"],.board[data-act="En proceso"] .bcol[data-col="En proceso"],.board[data-act="Listo para subir"] .bcol[data-col="Listo para subir"],.board[data-act="Publicado"] .bcol[data-col="Publicado"]{display:grid}
   .in,.sel{font-size:16px}
 }
 .srow .sub{display:none}
@@ -374,6 +406,7 @@ body.lock{overflow:hidden}
     <div id="view"></div>
   </main>
   <nav class="bnav" id="bNav"></nav>
+  <button class="fab" id="fab" data-a="newPedido" aria-label="Nuevo"></button>
 </div>
 <div class="ov" id="ov" hidden><div class="scrim" data-a="close"></div><section class="sheet" id="sheet" role="dialog" aria-modal="true"></section></div>
 <div class="toast" id="toast" role="status"></div>
@@ -404,7 +437,11 @@ gift:'<rect x="3" y="8" width="18" height="5" rx="1"/><path d="M5 13v7h14v-7M12 
 copy:'<rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/>',
 drop:'<path d="M12 3c3 4 6 7.2 6 11a6 6 0 0 1-12 0c0-3.8 3-7 6-11z"/>',
 refresh:'<path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"/>',
-check:'<path d="m5 12 5 5 9-10"/>'
+check:'<path d="m5 12 5 5 9-10"/>',
+cam:'<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+link:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+cal:'<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>'
 };
 const ic=(n,s)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"${s?` style="width:${s}px;height:${s}px"`:''}>${IC[n]}</svg>`;
 
@@ -434,7 +471,7 @@ const ESTADOS=['Hay que pedirlo','Pedido','Llegó','En stock','Entregado'];
 const ETONE={'Hay que pedirlo':'t-bad','Pedido':'t-warn','Llegó':'t-info','En stock':'t-acc','Entregado':'t-ok'};
 const epill=e=>`<span class="pill ${ETONE[e]||'t-mute'}">${esc(e||'Sin estado')}</span>`;
 const METODOS=['Efectivo','Transferencia','Mercado Pago','Otro'];
-const KEY={Pedidos:'id',Items:'id',Cobros:'id',Clientes:'nombre',Catalogo:'codigo',Compras:'numero',CompraItems:'id',Mensajes:'nombre',Config:'clave'};
+const KEY={Contenido:'id',Pedidos:'id',Items:'id',Cobros:'id',Clientes:'nombre',Catalogo:'codigo',Compras:'numero',CompraItems:'id',Mensajes:'nombre',Config:'clave'};
 
 /* ================== estado y sincronización ================== */
 const URL_PLANILLA='https://script.google.com/macros/s/AKfycbyat8c8vafzlQBUKXQrwJL9NnwMBRwIG6FlDdnq8HT7CGWStx9_rOitOorH4ZLNjufL/exec';
@@ -443,7 +480,7 @@ if(!cfg.url)cfg.url=URL_PLANILLA;
 let demo=!cfg.pin;
 let base=null,S=null,D=null,outbox=[];
 let busy=false,syncErr='',lastSync=LS.get('nota.last',0);
-const V={view:'inicio',per:'all',gen:'all',chart:'ventas',pq:'',pf:'Todos',cq:'',cf:'Todos',sq:'',sg:'all',sonly:true,stab:'perf',tq:'',cper:'all'};
+const V={view:'inicio',per:'all',gen:'all',chart:'ventas',pq:'',pf:'Todos',cq:'',cf:'Todos',sq:'',sg:'all',sonly:true,stab:'perf',tq:'',cper:'all',ctipo:'all',ccol:'Inspo'};
 
 function emptyDB(){const o={};Object.keys(KEY).forEach(k=>o[k]=[]);return o}
 function applyOp(db,op){
@@ -462,6 +499,7 @@ function rebuild(){
   S.Cobros.forEach(c=>{c.pedido=String(c.pedido);c.monto=num(c.monto);c.fecha=c.fecha||''});
   S.Clientes.forEach(c=>{c.nombre=String(c.nombre).trim();c.telefono=String(c.telefono||'');c.cumple=String(c.cumple||'')});
   S.Catalogo.forEach(p=>{p.codigo=String(p.codigo);p.precio=num(p.precio);p.costo_lista=num(p.costo_lista);p.stock_inicial=num(p.stock_inicial);p.tester=bool(p.tester);p.activo=p.activo===''||p.activo===undefined?true:bool(p.activo)});
+  S.Contenido.forEach(c=>{c.id=String(c.id);c.presupuesto=num(c.presupuesto);c.fecha=c.fecha||'';c.estado=c.estado||'Inspo';c.tipo=c.tipo||'Orgánico'});
   S.Compras.forEach(c=>{c.numero=String(c.numero);c.total=num(c.total);c.envio=num(c.envio);c.testers=num(c.testers)});
   S.CompraItems.forEach(x=>{x.compra=String(x.compra);x.codigo=String(x.codigo);x.cantidad=num(x.cantidad);x.precio=num(x.precio);x.cuenta_stock=bool(x.cuenta_stock)});
   D=derive();
@@ -578,14 +616,12 @@ function waList(nombre,pedId){
 }
 
 /* ================== navegación ================== */
-const VIEWS=[['inicio','Inicio','home'],['pedidos','Pedidos','bag'],['clientes','Clientes','users'],['stock','Stock','box'],['caja','Caja','wallet']];
+const VIEWS=[['inicio','Inicio','home'],['pedidos','Pedidos','bag'],['clientes','Clientes','users'],['stock','Stock','box'],['caja','Caja','wallet'],['contenido','Contenido','cam']];
 function route(){const h=location.hash.replace('#','');V.view=VIEWS.some(v=>v[0]===h)?h:'inicio';render()}
 window.addEventListener('hashchange',route);
 function renderNav(){
   $('#sideNav').innerHTML=VIEWS.map(v=>`<a class="nav" href="#${v[0]}"${V.view===v[0]?' aria-current="page"':''}>${ic(v[2])}${v[1]}</a>`).join('');
-  const b=VIEWS.map(v=>`<a href="#${v[0]}"${V.view===v[0]?' aria-current="page"':''}>${ic(v[2])}${v[1]}</a>`);
-  b.splice(2,0,`<button class="plus" data-a="newPedido" aria-label="Nuevo pedido"><span>${ic('plus')}</span>Nuevo</button>`);
-  $('#bNav').innerHTML=b.join('');
+  $('#bNav').innerHTML=VIEWS.map(v=>`<a href="#${v[0]}"${V.view===v[0]?' aria-current="page"':''}>${ic(v[2])}${v[1]}</a>`).join('');
 }
 function render(){renderNav();setStatus();renderBanner();renderView()}
 function renderBanner(){
@@ -595,11 +631,12 @@ function renderView(){
   const v=V.view,el=$('#view');
   const hr=new Date().getHours(),sal=hr<13?'Buen día':hr<20?'Buenas tardes':'Buenas noches';
   const n=new Date(),fecha=`${['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][n.getDay()]} ${n.getDate()} de ${MESL[n.getMonth()]}`;
-  const T={inicio:[`${sal}${cfg.nombre?`, <span>${esc(cfg.nombre)}</span>`:''}`,fecha],pedidos:['Pedidos',`${S.Pedidos.length} en total · ${S.Pedidos.filter(p=>p.estado!=='Entregado').length} sin entregar`],clientes:['Clientes',`${Object.keys(D.cli).length} personas · ${deudores().length} con saldo`],stock:['Stock',`${S.Catalogo.filter(p=>p.activo).length} perfumes en catálogo`],caja:['Caja y compras','Lo que entra por cobros y lo que sale en compras a Leduft']}[v];
+  const T={inicio:[`${sal}${cfg.nombre?`, <span>${esc(cfg.nombre)}</span>`:''}`,fecha],pedidos:['Pedidos',`${S.Pedidos.length} en total · ${S.Pedidos.filter(p=>p.estado!=='Entregado').length} sin entregar`],clientes:['Clientes',`${Object.keys(D.cli).length} personas · ${deudores().length} con saldo`],stock:['Stock',`${S.Catalogo.filter(p=>p.activo).length} perfumes en catálogo`],caja:['Caja y compras','Lo que entra por cobros y lo que sale en compras a Leduft'],contenido:['Contenido',`${S.Contenido.filter(c=>c.estado==='Inspo').length} ideas · ${S.Contenido.filter(c=>c.estado==='Listo para subir').length} listos para subir`]}[v];
   $('#topT').innerHTML=`<h1>${T[0]}</h1><p>${T[1]}</p>`;
-  $('#topNew').innerHTML=v==='caja'?`${ic('plus')}Nueva compra`:v==='clientes'?`${ic('plus')}Nueva clienta`:v==='stock'?`${ic('plus')}Nuevo producto`:`${ic('plus')}Nuevo pedido`;
-  $('#topNew').dataset.a=v==='caja'?'newCompra':v==='clientes'?'newCliente':v==='stock'?'newProd':'newPedido';
-  el.innerHTML=({inicio:vInicio,pedidos:vPedidos,clientes:vClientes,stock:vStock,caja:vCaja})[v]();
+  $('#topNew').innerHTML=v==='caja'?`${ic('plus')}Nueva compra`:v==='clientes'?`${ic('plus')}Nueva clienta`:v==='stock'?`${ic('plus')}Nuevo producto`:v==='contenido'?`${ic('plus')}Nueva idea`:`${ic('plus')}Nuevo pedido`;
+  $('#topNew').dataset.a=v==='caja'?'newCompra':v==='clientes'?'newCliente':v==='stock'?'newProd':v==='contenido'?'newCont':'newPedido';
+  $('#fab').dataset.a=v==='contenido'?'newCont':v==='caja'?'newCompra':'newPedido';$('#fab').innerHTML=ic('plus');$('#fab').setAttribute('aria-label',v==='contenido'?'Nueva idea':v==='caja'?'Nueva compra':'Nuevo pedido');
+  el.innerHTML=({inicio:vInicio,pedidos:vPedidos,clientes:vClientes,stock:vStock,caja:vCaja,contenido:vContenido})[v]();
   if(v==='pedidos')filterPed();if(v==='clientes')filterCli();if(v==='stock')filterStock();
 }
 
@@ -717,6 +754,57 @@ function vCaja(){
   <div class="dash"><article class="card s8"><div class="card-h"><h3>Entradas y salidas<small>Por mes</small></h3></div>${chart}</article>
   <article class="card s4"><div class="card-h"><h3>Compras a Leduft<small>Cada perfume te cuesta ${money(D.costo)}: ${money(D.prodU)} de producto + ${money(D.envioU)} de envío</small></h3></div><div class="rows">${compras.slice(0,6).map(c=>`<button class="row" data-a="compra" data-v="${esc(c.numero)}"><span class="av t-info" style="width:36px;height:36px">${ic('truck',17)}</span><div class="t"><b>Nº ${esc(c.numero)}</b><small>${fdate(c.fecha)} · ${S.CompraItems.filter(x=>x.compra===c.numero).reduce((s,x)=>s+x.cantidad,0)} u.</small></div><span class="pill ${c.estado==='Recibido'?'t-ok':'t-warn'}">${esc(c.estado)}</span><span class="v num">${kmoney(c.total)}</span></button>`).join('')||'<div class="empty">Sin compras cargadas.</div>'}</div></article>
   <article class="card s12"><div class="card-h"><h3>Movimientos<small>${mov.length} en el período</small></h3></div><div class="rows">${mov.slice(0,60).map(x=>`<button class="row" data-a="${x.act}" data-v="${esc(x.v)}"><span class="av ${x.t?'t-ok':'t-bad'}" style="width:36px;height:36px">${ic(x.t?'plus':'truck',16)}</span><div class="t"><b>${esc(x.txt)}</b><small>${fdate(x.f)} · ${esc(x.sub)}</small></div><span class="v num" style="color:${x.t?'var(--ok)':'var(--bad)'}">${x.t?'+':'−'}${money(x.a)}</span></button>`).join('')||'<div class="empty">Sin movimientos en este período.</div>'}</div></article></div>`;
+}
+
+/* ================== vista: contenido ================== */
+const CEST=['Inspo','En proceso','Listo para subir','Publicado'];
+const CTONE={'Inspo':'t-acc','En proceso':'t-warn','Listo para subir':'t-info','Publicado':'t-ok'};
+const CFORM=['Reel','Carrusel','Post','Historia','TikTok','Video'],CRED=['Instagram','TikTok','Facebook','Estados WA'];
+const tpill=t=>`<span class="pill nodot ${t==='Publicitario'?'t-bad':'t-ok'}">${t==='Publicitario'?'Publicitario':'Orgánico'}</span>`;
+const DIAS=['dom','lun','mar','mié','jue','vie','sáb'];
+function vContenido(){
+  const sinHoja=!demo&&base&&!Array.isArray(base.Contenido);
+  const items=S.Contenido.filter(c=>V.ctipo==='all'||c.tipo===V.ctipo);
+  const hoy=today();
+  const prox=S.Contenido.filter(c=>c.estado==='Listo para subir'&&c.fecha&&c.fecha>=hoy).sort((a,b)=>a.fecha.localeCompare(b.fecha)).slice(0,6);
+  const atras=S.Contenido.filter(c=>c.estado==='Listo para subir'&&c.fecha&&c.fecha<hoy).length;
+  const pres=S.Contenido.filter(c=>c.tipo==='Publicitario'&&c.estado!=='Inspo'&&(!c.fecha||mk(c.fecha)===mk(hoy))).reduce((s,c)=>s+c.presupuesto,0);
+  const ch=(k,l)=>`<button class="chip" data-a="ctipo" data-v="${k}" aria-pressed="${V.ctipo===k}">${l}<b>${k==='all'?S.Contenido.length:S.Contenido.filter(c=>c.tipo===k).length}</b></button>`;
+  const card=c=>{const i=CEST.indexOf(c.estado),sig=CEST[i+1];const d=c.fecha?new Date(c.fecha+'T12:00:00'):null;
+    return `<div class="kcard" data-a="cont" data-v="${esc(c.id)}" tabindex="0" role="button"><div class="tags">${tpill(c.tipo)}${c.formato||c.red?`<span class="pill nodot t-mute">${esc([c.formato,c.red].filter(Boolean).join(' · '))}</span>`:''}</div><b>${esc(c.titulo||'Sin título')}</b>${c.copy?`<small class="clamp">${esc(c.copy)}</small>`:''}<div class="kmeta">${d?`<span${c.estado==='Listo para subir'&&c.fecha<hoy?' style="color:var(--bad)"':''}>${ic('cal',14)}${DIAS[d.getDay()]} ${fdate(c.fecha)}</span>`:''}${c.producto?`<span>${ic('drop',14)}${esc(c.producto)}</span>`:''}${c.link?`<span>${ic('link',14)}Inspo</span>`:''}${c.tipo==='Publicitario'&&c.presupuesto?`<span>${kmoney(c.presupuesto)}</span>`:''}</div>${sig?`<button class="btn soft sm" data-a="contNext" data-v="${esc(c.id)}">${ic('arrow',15)}${sig==='Listo para subir'?'Listo para subir':sig}</button>`:''}</div>`};
+  return `${sinHoja?`<div class="banner" style="background:var(--warn-soft)"><p><b>Falta actualizar la planilla.</b> Pegá el script nuevo en Apps Script, corré ✦ Que Rico → Reparar fórmulas y diseño y publicá una nueva versión. Hasta entonces no se puede guardar contenido.</p></div>`:''}
+  <article class="card" style="margin-bottom:18px"><div class="card-h"><h3>Próximas publicaciones<small>Lo que está listo y tiene fecha${atras?` · <span style="color:var(--bad)">${atras} con fecha pasada</span>`:''}</small></h3>${pres?`<span class="pill t-bad nodot">Pauta este mes ${kmoney(pres)}</span>`:''}</div>
+  <div class="prox">${prox.map(c=>{const d=new Date(c.fecha+'T12:00:00');return `<button class="pday" data-a="cont" data-v="${esc(c.id)}"><span class="pd"><small>${DIAS[d.getDay()]}</small><b>${d.getDate()}</b><small>${MES[d.getMonth()]}</small></span><span class="pt"><b>${esc(c.titulo||'Sin título')}</b><small>${esc([c.formato,c.red].filter(Boolean).join(' · '))}</small>${tpill(c.tipo)}</span></button>`}).join('')||'<div class="empty" style="padding:10px">Nada programado. Poné fecha a lo que está listo para subir y aparece acá.</div>'}</div></article>
+  <div class="toolbar"><div class="chips">${ch('all','Todo')}${ch('Orgánico','Orgánico')}${ch('Publicitario','Publicitario')}</div></div>
+  <div class="seg kseg">${CEST.map(e=>`<button data-a="ccol" data-v="${e}" aria-pressed="${V.ccol===e}">${e==='Listo para subir'?'Para subir':e} ${items.filter(c=>c.estado===e).length}</button>`).join('')}</div>
+  <div class="board" data-act="${esc(V.ccol)}">${CEST.map(e=>{const l=items.filter(c=>c.estado===e).sort((a,b)=>(a.fecha||'9').localeCompare(b.fecha||'9')||String(b.creado||'').localeCompare(String(a.creado||'')));return `<section class="bcol" data-col="${e}"><header><span class="pill ${CTONE[e]}">${e}</span><b class="num">${l.length}</b><button class="iconbtn sm" data-a="newCont" data-v="${e}" aria-label="Agregar en ${e}">${ic('plus')}</button></header>${l.map(card).join('')||`<div class="empty" style="padding:16px 6px">${e==='Inspo'?'Guardá acá ideas y links que te inspiren.':e==='Publicado'?'Lo que ya subiste.':'Vacío.'}</div>`}</section>`}).join('')}</div>`;
+}
+function sheetCont(id,estado){
+  const c=id?S.Contenido.find(x=>x.id===id):null;
+  F={kind:'cont',id:id||null};
+  const o=(grp,vals,cur)=>`<div class="opts" id="${grp}">${vals.map(v=>`<button class="opt" data-a="opt" aria-pressed="${v===cur}">${v}</button>`).join('')}</div>`;
+  const tipo=c?c.tipo:'Orgánico';
+  openSheet(id?'Editar contenido':'Nueva idea',id?epillC(c.estado):'Para la planificación de redes',`
+  <div class="field"><label class="lbl" for="kTit">Título o idea</label><input class="in" id="kTit" value="${esc(c?c.titulo:'')}" placeholder="Ej: Reel mostrando el Yaral en la cartera"></div>
+  <div><span class="lbl">Estado</span>${o('kEst',CEST,c?c.estado:(estado||'Inspo'))}</div>
+  <div><span class="lbl">Tipo</span><div class="opts" id="kTipo">${['Orgánico','Publicitario'].map(v=>`<button class="opt" data-a="optTipo" aria-pressed="${v===tipo}">${v}</button>`).join('')}</div></div>
+  <div class="grid2"><div class="field"><label class="lbl" for="kFor">Formato</label><select class="in sel" id="kFor"><option value="">—</option>${CFORM.map(v=>`<option${c&&c.formato===v?' selected':''}>${v}</option>`).join('')}</select></div><div class="field"><label class="lbl" for="kRed">Red</label><select class="in sel" id="kRed"><option value="">—</option>${CRED.map(v=>`<option${c&&c.red===v?' selected':''}>${v}</option>`).join('')}</select></div></div>
+  <div class="grid2"><div class="field"><label class="lbl" for="kFec">Fecha para subir</label><input class="in" type="date" id="kFec" value="${esc(c?c.fecha:'')}"></div><div class="field"><label class="lbl" for="kPro">Producto</label><select class="in sel" id="kPro"><option value="">—</option>${S.Catalogo.filter(p=>p.activo).map(p=>`<option value="${esc(p.codigo)}"${c&&c.producto===p.codigo?' selected':''}>${esc(p.codigo)} · ${esc(p.inspirado)}</option>`).join('')}</select></div></div>
+  <div class="field" id="kPresBox" ${tipo==='Publicitario'?'':'hidden'}><label class="lbl" for="kPre">Presupuesto de pauta $</label><input class="in num" id="kPre" inputmode="numeric" value="${c&&c.presupuesto?c.presupuesto:''}" placeholder="Ej: 15000"></div>
+  <div class="field"><label class="lbl" for="kLink">Link de inspo</label><div style="display:flex;gap:8px"><input class="in" id="kLink" value="${esc(c?c.link:'')}" placeholder="Pegá el link del reel, TikTok o Pinterest" inputmode="url">${c&&c.link?`<a class="iconbtn" style="width:46px;height:46px" target="_blank" rel="noopener" href="${esc(c.link)}" aria-label="Abrir link">${ic('link')}</a>`:''}</div></div>
+  <div class="field"><label class="lbl" for="kCopy">Texto / copy</label><textarea class="in" id="kCopy" placeholder="El texto para el posteo, hashtags…" style="min-height:110px">${esc(c?c.copy:'')}</textarea>${c&&c.copy?`<button class="btn ghost sm" style="margin-top:8px;justify-self:start" data-a="copyCopy">${ic('copy')}Copiar texto</button>`:''}</div>
+  <div class="field"><label class="lbl" for="kNot">Notas</label><input class="in" id="kNot" value="${esc(c?c.notas:'')}" placeholder="Ej: grabar con luz natural, usar audio trending"></div>
+  <button class="btn block" data-a="saveCont" style="height:48px">${ic('check')}Guardar</button>
+  ${id?`<button class="btn danger block" data-a="delCont" data-v="${esc(id)}">${ic('trash')}Eliminar</button>`:''}`);
+}
+const epillC=e=>`<span class="pill ${CTONE[e]||'t-mute'}">${esc(e)}</span>`;
+function saveCont(){
+  const g=id=>$('#'+id).value.trim();
+  const row={titulo:g('kTit'),estado:$('#kEst [aria-pressed="true"]').textContent,tipo:$('#kTipo [aria-pressed="true"]').textContent,formato:$('#kFor').value,red:$('#kRed').value,fecha:g('kFec'),link:g('kLink'),producto:$('#kPro').value,copy:$('#kCopy').value,presupuesto:num(g('kPre')),notas:g('kNot')};
+  if(!row.titulo&&!row.link){toast('Poné un título o un link');return}
+  if(!demo&&base&&!Array.isArray(base.Contenido)){toast('Primero actualizá la planilla (mirá el aviso)');return}
+  const ops=F.id?[{op:'update',t:'Contenido',key:F.id,set:row}]:[{op:'add',t:'Contenido',row:Object.assign({id:'K-'+uid(),creado:today()},row)}];
+  const nuevo=!F.id;closeSheet();V.ccol=row.estado;commit(ops,nuevo?'Idea guardada':'Contenido actualizado');
 }
 
 /* ================== hojas ================== */
@@ -925,6 +1013,15 @@ const ACT={
   editCliente:v=>formCliente(v),
   newProd:()=>formProd(),
   newCompra:()=>formCompra(),
+  newCont:v=>sheetCont(null,v),
+  cont:v=>sheetCont(v),
+  saveCont:()=>saveCont(),
+  ctipo:v=>{V.ctipo=v;renderView()},
+  ccol:v=>{V.ccol=v;renderView()},
+  contNext:v=>{const c=S.Contenido.find(x=>x.id===v);const n=CEST[CEST.indexOf(c.estado)+1];if(!n)return;commit([{op:'update',t:'Contenido',key:v,set:Object.assign({estado:n},n==='Publicado'&&!c.fecha?{fecha:today()}:{})}],'Pasó a '+n)},
+  delCont:(v,el)=>arm(el,()=>{closeSheet();commit([{op:'delete',t:'Contenido',key:v}],'Eliminado')}),
+  optTipo:(v,el)=>{el.parentElement.querySelectorAll('.opt').forEach(b=>b.setAttribute('aria-pressed',b===el));$('#kPresBox').hidden=el.textContent!=='Publicitario'},
+  copyCopy:()=>{const t=$('#kCopy').value;try{navigator.clipboard.writeText(t).then(()=>toast('Texto copiado'),()=>toast('No se pudo copiar'))}catch(e){toast('No se pudo copiar')}},
   ped:v=>sheetPedido(v),
   cli:v=>sheetCliente(v),
   prod:v=>formProd(v),
@@ -986,7 +1083,7 @@ const INP={
 };
 document.addEventListener('input',e=>{const f=e.target.dataset&&e.target.dataset.f;if(f&&INP[f])INP[f](e.target)});
 document.addEventListener('focusin',e=>{const t=e.target;if(t&&(t.id==='pk'||t.id==='fCli')&&window.innerWidth<900)setTimeout(()=>t.scrollIntoView({block:'start',behavior:'smooth'}),350)});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())closeSheet()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen())closeSheet();if(e.key==='Enter'&&e.target.classList&&e.target.classList.contains('kcard'))e.target.click()});
 
 /* ================== datos de ejemplo ================== */
 function demoData(){
@@ -1008,6 +1105,13 @@ function demoData(){
   db.Compras.unshift({numero:'55512',fecha:'2026-06-27',estado:'Recibido',total:125641,envio:17641,testers:108000,recibido:'2026-06-27',notas:'Kit revendedor (20 testers)'});
   ['Yaral','Olymp','Ggirl','Malex','Strin','Victy'].forEach((cod,j)=>db.CompraItems.push({id:'CI-dk'+j,compra:'55512',codigo:cod,tipo:'Tester',cantidad:1,precio:6000,estado:'Recibido',cuenta_stock:false}));
   db.Mensajes=[{nombre:'Ya llegó',texto:'¡Hola {{nombre}}! Ya llegó tu {{perfumes}}. ¿Coordinamos la entrega?'},{nombre:'Recordatorio de saldo',texto:'Hola {{nombre}}! Te recuerdo que quedó un saldo de {{saldo}}. Cuando puedas lo cerramos, gracias!'},{nombre:'Cumpleaños',texto:'¡Feliz cumple {{nombre}}! Esta semana tenés 15% off como regalito.'},{nombre:'Reactivación',texto:'Hola {{nombre}}! Hace rato no charlamos. Llegaron perfumes nuevos, ¿te muestro?'}];
+  db.Contenido=[
+    {id:'K-d1',titulo:'Reel: qué perfume elegir según tu estilo',estado:'Inspo',tipo:'Orgánico',formato:'Reel',red:'Instagram',fecha:'',link:'',producto:'',copy:'',presupuesto:0,notas:'Formato de preguntas rápidas, audio en tendencia',creado:'2026-10-20'},
+    {id:'K-d2',titulo:'Antes y después: el perfume original vs. el nuestro',estado:'Inspo',tipo:'Orgánico',formato:'TikTok',red:'TikTok',fecha:'',link:'',producto:'Yaral',copy:'',presupuesto:0,notas:'',creado:'2026-10-22'},
+    {id:'K-d3',titulo:'Promo Día de la Madre: box con perfume + perfumero',estado:'En proceso',tipo:'Publicitario',formato:'Carrusel',red:'Instagram',fecha:'2026-11-03',link:'',producto:'Malex',copy:'Regalá algo que dure. Box con perfume de 100 ml + perfumero de cartera.',presupuesto:15000,notas:'Segmentar San Luis y Villa Mercedes',creado:'2026-10-24'},
+    {id:'K-d4',titulo:'Llegaron los nuevos: Olympea y Very Good Girl',estado:'Listo para subir',tipo:'Orgánico',formato:'Carrusel',red:'Instagram',fecha:'2026-10-31',link:'',producto:'Olymp',copy:'¡Llegaron! Olympea y Very Good Girl ya disponibles. Escribinos por DM 💌',presupuesto:0,notas:'',creado:'2026-10-25'},
+    {id:'K-d5',titulo:'Historia con encuesta: ¿dulce o fresco?',estado:'Listo para subir',tipo:'Orgánico',formato:'Historia',red:'Instagram',fecha:'2026-11-02',link:'',producto:'',copy:'',presupuesto:0,notas:'',creado:'2026-10-26'},
+    {id:'K-d6',titulo:'Reel de unboxing del pedido a Leduft',estado:'Publicado',tipo:'Orgánico',formato:'Reel',red:'Instagram',fecha:'2026-10-24',link:'',producto:'',copy:'',presupuesto:0,notas:'Buena respuesta en comentarios',creado:'2026-10-18'}];
   db.Config=[{clave:'umbral_reponer',valor:0}];
   return db;
 }
